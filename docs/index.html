@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AttentionOS — AI Retention & Monetization Decision Engine</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#121a33; --panel2:#0e1530; --line:#1f2b50;
+    --text:#e6ecff; --muted:#93a2c4; --accent:#6c8cff; --accent2:#3ddc97;
+    --warn:#f5b454; --danger:#ff6b81;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, #1a2b6b 0%, transparent 60%),
+               radial-gradient(900px 600px at -10% 30%, #14532d33 0%, transparent 55%), var(--bg);
+    color:var(--text); line-height:1.6;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+  header{padding:72px 0 36px; text-align:center;}
+  .badge{display:inline-block; padding:6px 14px; border:1px solid var(--line);
+    border-radius:999px; font-size:13px; color:var(--muted); letter-spacing:.3px; background:var(--panel);}
+  h1{font-size:46px; font-weight:800; margin:20px 0 10px; letter-spacing:-.5px; line-height:1.15;}
+  h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .tag{color:var(--muted); font-size:18px; max-width:680px; margin:0 auto 26px;}
+  .loop{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:18px 0 8px; color:var(--muted); font-size:14px;}
+  .loop b{color:var(--accent2); font-weight:700;}
+  .arrow{color:#3a4a80; padding:0 6px;}
+  .btn{display:inline-block; padding:12px 22px; border-radius:10px; text-decoration:none; font-weight:600; margin:6px;}
+  .btn.primary{background:var(--accent); color:#fff;}
+  .btn.ghost{border:1px solid var(--line); color:var(--text); background:rgba(255,255,255,.03);}
+  .btn:hover{filter:brightness(1.1);}
+  /* KPIs */
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin:36px 0;}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 18px;}
+  .kpi .v{font-size:28px; font-weight:800;}
+  .kpi .l{color:var(--muted); font-size:13px; margin-top:4px;}
+  .kpi .v.s{color:var(--accent2);} .kpi .v.w{color:var(--warn);} .kpi .v.a{color:var(--accent);}
+  h2{font-size:26px; font-weight:750; margin:46px 0 6px; letter-spacing:-.3px;}
+  .sub{color:var(--muted); margin-bottom:24px;}
+  /* sections */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:22px; margin:14px 0;}
+  .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px;}
+  .io{display:flex; align-items:flex-start; gap:16px; padding:12px 8px; border-bottom:1px solid var(--line);}
+  .io:last-child{border-bottom:0;}
+  .io .step{flex-shrink:0; width:34px; height:34px; border-radius:10px; background:var(--panel2); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent2);}
+  .io b{display:block; font-size:16px;}
+  .io p{color:var(--muted); font-size:14px; margin-top:2px;}
+  .io small{display:block; margin-top:4px; font-size:12px; color:#6f7fa8; font-family:Consolas,Menlo,monospace;}
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th,td{padding:10px 12px; text-align:left; border-bottom:1px solid var(--line);}
+  th{color:var(--muted); font-weight:600; font-size:13px;}
+  td b{color:var(--accent2);}
+  .chart-box{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:14px; margin:14px 0;}
+  .chart-box iframe{width:100%; height:340px; border:0; border-radius:10px; background:#fff;}
+  .chart-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(480px,1fr)); gap:14px;}
+  .chart-grid .chart-box{margin:0;}
+  .pill{display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600;}
+  .pill.ok{background:#14532d33; color:var(--accent2); border:1px solid #1e7a43;}
+  .pill.none{background:#3a3a5522; color:var(--muted); border:1px solid var(--line);}
+  .callout{background:linear-gradient(90deg,#14532d22,transparent); border-left:3px solid var(--accent2); padding:16px 18px; border-radius:0 12px 12px 0; margin:18px 0;}
+  .foot{text-align:center; color:var(--muted); font-size:13px; padding:48px 0 60px;}
+  @media(max-width:560px){ h1{font-size:34px;} .chart-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="badge">Portfolio project · Production-style ML data product</span>
+  <h1>Attention<span>OS</span></h1>
+  <p class="tag">An AI decision engine that tells a product <b>what to do next for every user</b> — turning raw behavioral data into a single, explainable, tested action.</p>
+  <div class="loop">
+    <b>Behavior</b><span class="arrow">→</span>
+    <b>Prediction</b><span class="arrow">→</span>
+    <b>Decision</b><span class="arrow">→</span>
+    <b>Action</b><span class="arrow">→</span>
+    <b>Experiment</b><span class="arrow">→</span>
+    <b>Learning</b>
+  </div>
+  <div style="margin-top:22px;">
+    <a class="btn primary" href="https://github.com/tejas-parjane/attention-os">View GitHub repo</a>
+    <a class="btn ghost" href="#how">Run it yourself ↓</a>
+  </div>
+</header>
+
+<!-- KPI -->
+<div class="kpis">
+  <div class="kpi"><div class="v s">500</div><div class="l">Synthetic users (90 days of events)</div></div>
+  <div class="kpi"><div class="v w">250</div><div class="l">Users flagged at-risk (>70% churn)</div></div>
+  <div class="kpi"><div class="v a">$55K</div><div class="l">Total lifetime revenue</div></div>
+  <div class="kpi"><div class="v a">0.84</div><div class="l">Retention model ROC-AUC (test)</div></div>
+  <div class="kpi"><div class="v a">0.89</div><div class="l">Monetization model ROC-AUC (test)</div></div>
+  <div class="kpi"><div class="v s">64%</div><div class="l">Users receive <b>NO_ACTION</b> (restraint)</div></div>
+</div>
+
+<h2>What it does</h2>
+<p class="sub">Consumer products generate millions of events (sessions, purchases, notifications, level-ups). Collecting it is easy — deciding what to do next, respecting business rules, and <b>proving the decision worked</b>, is the hard part. AttentionOS makes that loop explicit, measurable, and improvable.</p>
+
+<h2>The system, end to end</h2>
+<div class="card">
+  <div class="io"><div class="step">1</div><div><b>Behavior</b><p>Synthetic event generator — 15 event types, 8 user archetypes (whale, casual, at-risk, declining…), with <b>irreducible return noise</b> so behavior isn't perfectly predictable (which is why metrics are realistic, not 1.0).</p><small>src/data/generator.py</small></div></div>
+  <div class="io"><div class="step">2</div><div><b>Feature Engineering</b><p>40 leakage-safe rolling-window features — recency, frequency, intensity, trend, diversity. Each feature uses only <b>past</b> data (strict reference-date cutoff before the label window).</p><small>src/features/engine.py</small></div></div>
+  <div class="io"><div class="step">3</div><div><b>Prediction</b><p>Will the user return in 7 days? Will they purchase in 7 days? Three model families (Logistic · Random Forest · XGBoost) on a <b>chronological 70/15/15 split</b>; best selected on test ROC-AUC.</p><small>src/models/retention.py · monetization.py</small></div></div>
+  <div class="io"><div class="step">4</div><div><b>Decision</b><p>A <b>deterministic</b> decision engine scores 6 candidate actions by expected value minus cost, fatigue and risk; applies <b>guardrails</b> as hard constraints; may return <b>NO_ACTION</b> when confidence is low.</p><small>src/decision_engine/engine.py</small></div></div>
+  <div class="io"><div class="step">5</div><div><b>Explanation</b><p>Every decision ships with a plain-language AI explanation (provider-agnostic LLM) plus a guaranteed deterministic fallback.</p><small>src/llm/explainer.py</small></div></div>
+  <div class="io"><div class="step">6</div><div><b>Experimentation</b><p>Deterministic hash-based A/B assignment + Welch's t-test significance analysis — we measure whether the action actually worked and feed it back.</p><small>src/experiments/engine.py</small></div></div>
+  <div class="io"><div class="step">7</div><div><b>Serving + Monitoring</b><p>FastAPI backend (9 endpoints) + Streamlit dashboard (5 pages) + decision/outcome tracking for auditability.</p><small>src/api/ · dashboard/ · src/monitoring/</small></div></div>
+</div>
+
+<h2>Model performance (held-out test set)</h2>
+<p class="sub">Honest, believable numbers — not the fake "1.0 on demo data" you often see.</p>
+<div class="grid2">
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Retention (returns in 7 days)</h3>
+    <table>
+      <tr><th>Model</th><th>ROC-AUC</th><th>PR-AUC</th><th>F1</th><th>Brier</th></tr>
+      <tr><td><b>Logistic</b></td><td><b>0.84</b></td><td>0.66</td><td>0.78</td><td>0.16</td></tr>
+      <tr><td>Random Forest</td><td>0.82</td><td>0.73</td><td>0.71</td><td>0.18</td></tr>
+      <tr><td>XGBoost</td><td>0.77</td><td>0.61</td><td>0.69</td><td>0.23</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Monetization (purchases in 7 days)</h3>
+    <table>
+      <tr><th>Model</th><th>ROC-AUC</th><th>PR-AUC</th><th>F1</th><th>Brier</th></tr>
+      <tr><td>Logistic</td><td>0.89</td><td>0.53</td><td>0.58</td><td>0.19</td></tr>
+      <tr><td><b>Random Forest</b></td><td><b>0.89</b></td><td><b>0.55</b></td><td><b>0.56</b></td><td><b>0.12</b></td></tr>
+      <tr><td>XGBoost</td><td>0.88</td><td>0.51</td><td>0.57</td><td>0.17</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Charts -->
+<h2>Live dashboards from the data</h2>
+<p class="sub">Every chart below is an <b>interactive</b> Plotly chart rendered from the actual project data (six trained models, 500 users, one experiment).</p>
+<div class="chart-grid">
+  <div class="chart-box"><iframe loading="lazy" src="charts/daily_active.html" title="Daily Active Users"></iframe></div>
+  <div class="chart-box"><iframe loading="lazy" src="charts/engagement_mix.html" title="Engagement Mix"></iframe></div>
+  <div class="chart-box"><iframe loading="lazy" src="charts/model_performance.html" title="Model Comparison"></iframe></div>
+  <div class="chart-box"><iframe loading="lazy" src="charts/action_distribution.html" title="Action Distribution"></iframe></div>
+  <div class="chart-box"><iframe loading="lazy" src="charts/churn_risk.html" title="Churn Risk Distribution"></iframe></div>
+  <div class="chart-box"><iframe loading="lazy" src="charts/experiment.html" title="Experiment Results"></iframe></div>
+</div>
+
+<!-- Experiment headline -->
+<div class="callout">
+  <b>Experiment highlight (exp_2026_attn_v1 · 500 users):</b> all three variants beat control. The
+  <b>reward</b> action lifted the outcome by <b>+0.143</b> (95% CI [0.605, 0.643], <b>p &lt; 0.0001</b>) —
+  a statistically-robust winner a product team would confidently roll out.
+  personalized_challenge (+0.090, p=0.001) and generic_notification (+0.060, p=0.023) also cleared
+  the α = 0.05 bar.
+</div>
+
+<h2>Recommended actions (500 users)</h2>
+<div class="card">
+  <table>
+    <tr><th>Action</th><th>Share</th><th>Purpose</th></tr>
+    <tr><td><b>NO_ACTION</b></td><td>63.8%</td><td>"Do nothing" below the confidence threshold — prevents over-intervention & notification fatigue</td></tr>
+    <tr><td>DISCOUNT</td><td>16.8%</td><td>Monetization nudge for conversion-capable users</td></tr>
+    <tr><td>PUSH_NOTIFICATION</td><td>10.2%</td><td>Re-engagement nudge for at-risk users</td></tr>
+    <tr><td>PERSONALIZED_CONTENT</td><td>5.0%</td><td>Content re-engagement for stable-but-bored users</td></tr>
+    <tr><td>AD_FREQUENCY_REDUCTION</td><td>3.8%</td><td>Protect high-value users from ad fatigue</td></tr>
+    <tr><td>CROSS_SELL</td><td>0.4%</td><td>Extend value for top spenders</td></tr>
+  </table>
+</div>
+
+<h2 id="how">Run the full demo yourself</h2>
+<div class="card">
+  <p style="margin-bottom:12px">Everything ships in the repo — the trained models and generated data are included, so <b>no retraining or regeneration is needed</b> to serve the demo.</p>
+  <table>
+    <tr><th>Step</th><th>Command</th></tr>
+    <tr><td>Clone</td><td><code>git clone https://github.com/tejas-parjane/attention-os.git</code></td></tr>
+    <tr><td>Install</td><td><code>pip install -e ".[dev]"</code></td></tr>
+    <tr><td>API</td><td><code>uvicorn src.api.app:app --host 127.0.0.1 --port 8000</code></td></tr>
+    <tr><td>Dashboard</td><td><code>streamlit run dashboard/app.py</code> → open <code>http://localhost:8501</code></td></tr>
+    <tr><td>API docs</td><td><code>http://localhost:8000/docs</code></td></tr>
+  </table>
+  <p style="color:var(--muted); font-size:14px; margin-top:14px">Reproduce everything from scratch (data → features → models → predictions → decisions → experiments):</p>
+  <p style="font-family:Consolas,Menlo,monospace; font-size:13px; color:#9fb0d8">
+    python scripts/generate_data.py && python scripts/build_features.py && python scripts/train_models.py && python scripts/generate_predictions.py && python scripts/run_decision_engine.py && python scripts/run_experiment_analysis.py
+  </p>
+</div>
+
+<h2>Project structure</h2>
+<div class="card">
+  <p style="font-family:Consolas,Menlo,monospace; font-size:13px; color:#9fb0d8; line-height:1.8">
+    attention-os/<br>
+    ├─ src/<br>
+    │&nbsp; ├─ data/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; generator · validation · database<br>
+    │&nbsp; ├─ features/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; leakage-safe feature pipeline<br>
+    │&nbsp; ├─ models/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; retention · monetization · predict · state<br>
+    │&nbsp; ├─ decision_engine/&nbsp; deterministic scoring + guardrails<br>
+    │&nbsp; ├─ experiments/&nbsp;&nbsp;&nbsp; assignment + Welch's t-test<br>
+    │&nbsp; ├─ llm/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; explanation w/ deterministic fallback<br>
+    │&nbsp; ├─ monitoring/&nbsp;&nbsp;&nbsp;&nbsp; decision + outcome tracking<br>
+    │&nbsp; └─ api/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FastAPI (9 endpoints)<br>
+    ├─ dashboard/app.py&nbsp;&nbsp; Streamlit (5 pages)<br>
+    ├─ scripts/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; one script per pipeline stage<br>
+    ├─ tests/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 50 unit tests<br>
+    ├─ docs/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; architecture · modeling · demo_script<br>
+    └─ data/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; raw · processed · models (.joblib)
+  </p>
+</div>
+
+<h2>Honest limitations</h2>
+<div class="card">
+  <p class="sub" style="margin-bottom:0">This is a portfolio demonstration, and I'm upfront about it:</p>
+  <ul style="color:var(--muted); padding-left:20px; line-height:2">
+    <li><b>Synthetic data</b> — generated, not real users; the pipeline is designed so real event streams can be substituted without changing downstream code.</li>
+    <li><b>No true causal inference from models</b> — predictions are correlational; only the experiment framework gives causal estimates.</li>
+    <li><b>Simulated treatment effects</b> — experiment outcomes are simulated, not measured from real user responses.</li>
+    <li><b>Heuristic LTV</b> — LTV uses a simple purchase-probability approximation, not formal survival/causal LTV.</li>
+  </ul>
+</div>
+
+<div class="foot">
+  AttentionOS · Built with Python, scikit-learn, XGBoost, FastAPI, Streamlit, Plotly<br>
+  <a href="https://github.com/tejas-parjane/attention-os" style="color:var(--accent)">github.com/tejas-parjane/attention-os</a>
+</div>
+
+</div>
+</body>
+</html>

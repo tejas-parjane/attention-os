@@ -1,0 +1,17 @@
+# Exclude the Python application from the static Vercel deployment.
+# The Vercel site serves only the `landing` folder as a static page.
+src/
+dashboard/
+tests/
+notebooks/
+data/
+docs/
+scripts/
+*.db
+*.joblib
+*.parquet
+*.csv
+.env
+.git/
+.vercel/
+__pycache__/
