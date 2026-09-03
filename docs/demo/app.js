@@ -24,15 +24,29 @@ async function load() {
   pick(DATA.users[Math.floor(Math.random() * DATA.users.length)]);
 }
 
+const AVATAR_COLORS = ["#7c8dff", "#34e0a1", "#ffc46b", "#ff7d94", "#b48cff", "#4fd1e8"];
+function avatarColor(id) {
+  let h = 0;
+  for (const c of id) h = (h * 31 + c.charCodeAt(0)) % 997;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function engSub(u) {
+  const e = (u.extra.engagement || "").toLowerCase();
+  return e.replace(/_/g, " ");
+}
+
 function renderUserList(users) {
   const box = $("userlist");
   box.innerHTML = "";
   for (const u of users) {
     const seg = u.state.value_segment;
+    const id = u.user_id;
+    const initials = id.replace("user_", "").replace(/^0+/, "").slice(-3).padStart(3, "0");
     const row = document.createElement("div");
     row.className = "user-row";
     row.innerHTML =
-      `<span class="u">${u.user_id}</span>` +
+      `<span class="avatar" style="background:${avatarColor(id)}">${initials}</span>` +
+      `<span class="meta"><span class="u">${id}</span><span class="sub">${engSub(u)} · LTV $${fmtNum(u.state.predicted_ltv)}</span></span>` +
       `<span class="seg ${segClass(seg)}">${seg}</span>`;
     row.onclick = () => pick(u);
     box.appendChild(row);
@@ -51,7 +65,7 @@ function pick(u) {
   currentUser = u;
   // highlight row
   for (const row of $("userlist").children) {
-    row.style.background = row.querySelector(".u").textContent === u.user_id ? "#14532d44" : "";
+    row.classList.toggle("sel", row.querySelector(".u").textContent === u.user_id);
   }
   run();
 }
@@ -76,23 +90,27 @@ function run() {
   renderExperiment();
 }
 
+const ACTION_EMBLEM = {
+  NO_ACTION: "🕊️", DISCOUNT: "🏷️", PUSH_NOTIFICATION: "🔔", PERSONALIZED_CONTENT: "✨",
+  PERSONALIZED_CHALLENGE: "🎯", CHALLENGE: "🏁", REWARD: "🎁", IN_APP_MESSAGE: "💬",
+  CROSS_SELL: "🛒", AD_FREQUENCY_REDUCTION: "📴",
+};
+
 function renderDecision(d, e) {
-  $("dAction").textContent = d.action.replace(/_/g, " ");
-  const cls = d.action === "NO_ACTION" ? "background:#14532d33;color:var(--accent2);border:1px solid #1e7a43;"
-        : "background:#4a3d1522;color:var(--warn);border:1px solid #7a5f1e;";
-  let badge = $("dAction").nextElementSibling;
-  if (!badge || !badge.classList.contains("action-badge")) {
-    badge = document.createElement("span"); badge.className = "action-badge";
-    $("dAction").appendChild(badge);
-  }
-  badge.style.cssText += cls;
-  badge.textContent = `objective=${d.objective}`;
-  $("dEV").innerHTML = `Expected value <b style="color:var(--accent2)">${d.expected_value.toFixed(4)}</b> · confidence <b style="color:var(--accent)">${(d.confidence * 100).toFixed(1)}%</b>`;
+  $("dAction").textContent = d.action.replace(/_/g, " ").toLowerCase();
+  $("dEmblem").textContent = ACTION_EMBLEM[d.action] || "✨";
+  $("dBadge").textContent = `objective · ${d.objective}`;
+
+  const ev = d.expected_value.toFixed(4);
+  $("dEV").innerHTML =
+    `<div class="stat"><div class="k">Expected value</div><div class="v pos">${ev}</div></div>` +
+    `<div class="stat"><div class="k">Confidence</div><div class="v acc">${(d.confidence * 100).toFixed(1)}%</div></div>` +
+    `<div class="stat"><div class="k">Chosen for</div><div class="v" style="font-size:15px;color:#e8edff">${d.objective}</div></div>`;
 
   $("dReasons").innerHTML = d.reasons.map((r) => `<li>${r}</li>`).join("");
   $("dGuard").innerHTML = d.guardrails.length
     ? d.guardrails.map((g) => `<li>${g}</li>`).join("")
-    : `<li style="color:var(--muted)">none — all candidates passed</li>`;
+    : `<li class="empty"><span>none — every candidate passed the guardrails</span></li>`;
 
   $("dExplain").innerHTML =
     `<div class="sum">${e.summary}</div>` +
@@ -128,9 +146,10 @@ function renderScores(scores, chosen) {
   tbody.innerHTML = scores
     .map((s) => {
       const cls = s.action_name === chosen ? ' class="top"' : "";
-      return `<tr${cls}><td>${s.action_name}</td><td>${s.expected_value.toFixed(3)}</td>` +
-        `<td>${s.predicted_impact.toFixed(3)}</td><td>${(s.confidence * 100).toFixed(1)}%</td>` +
-        `<td>${s.action_cost.toFixed(3)}</td><td>${s.fatigue_penalty.toFixed(3)}</td><td>${s.risk_penalty.toFixed(3)}</td></tr>`;
+      const n = (x) => `<td class="num">${x}</td>`;
+      return `<tr${cls}><td>${s.action_name}</td>` + n(s.expected_value.toFixed(3)) +
+        n(s.predicted_impact.toFixed(3)) + n((s.confidence * 100).toFixed(1) + "%") +
+        n(s.action_cost.toFixed(3)) + n(s.fatigue_penalty.toFixed(3)) + n(s.risk_penalty.toFixed(3)) + `</tr>`;
     })
     .join("");
 }
@@ -145,9 +164,9 @@ function renderExperiment() {
   const bars = document.getElementById("expBars");
   bars.innerHTML = stats.map((s) => {
     const w = (s.mean / Math.max(...stats.map((x) => x.mean)) * 100).toFixed(1);
-    return `<div class="bar-wrap"><span class="bar-label">${s.variant} (n=${s.count})</span>` +
+    return `<div class="bar-wrap"><span class="bar-label">${s.variant} <span style="color:var(--faint)">(n=${s.count})</span></span>` +
       `<div class="bar-outer"><div class="bar-inner" style="width:${w}%"></div></div>` +
-      `<span style="font-size:12px;width:44px;text-align:right">${s.mean.toFixed(3)}</span></div>`;
+      `<span class="bar-cap">${s.mean.toFixed(3)}</span></div>`;
   }).join("");
 
   const sig = document.getElementById("expSig");
@@ -156,10 +175,11 @@ function renderExperiment() {
     .map((v) => {
       const t = AttentionEngine.welch_t(byVariant[v], byVariant[control]);
       const up = t.p < 0.05;
-      return `<div style="margin:6px 0">` +
-        `<b>${v}</b> vs control: mean ${t.a_mean.toFixed(3)} vs ${t.b_mean.toFixed(3)} · ` +
-        `diff <b>${(t.a_mean - t.b_mean).toFixed(3)}</b> · p = ${t.p.toFixed(4)} · ` +
-        `<span class="${up ? "sig-ok" : "sig-no"}">${up ? "significant (p<0.05) ✓" : "not significant"}</span></div>`;
+      return `<div class="sig-line">` +
+        `<b>${v}</b> vs control — mean ${t.a_mean.toFixed(3)} vs ${t.b_mean.toFixed(3)} · ` +
+        `lift <b class="${up ? "sig-ok" : ""}">${(t.a_mean - t.b_mean).toFixed(3)}</b>` +
+        ` · p = ${t.p.toFixed(4)} · ` +
+        `<span class="${up ? "sig-ok" : "sig-no"}">${up ? "significant ✓" : "not significant"}</span></div>`;
     }).join("");
 }
 
