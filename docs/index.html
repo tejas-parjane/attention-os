@@ -6,132 +6,132 @@
 <title>AttentionOS — AI Retention & Monetization Decision Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --bg:#0b0f1f; --bg2:#111631;
-    --card:rgba(255,255,255,.045); --card-strong:rgba(255,255,255,.07);
-    --line:rgba(148,163,200,.14); --line-strong:rgba(148,163,200,.24);
-    --text:#eef1fb; --muted:#9aa6c8; --faint:#67749b;
-    --accent:#7c8dff; --accent2:#34e0a1; --warn:#ffc46b; --danger:#ff7d94;
-    --radius:20px; --shadow:0 20px 60px rgba(0,0,0,.45);
+    --bg:#0b0b0c;
+    --panel:#121212;
+    --panel-2:#191919;
+    --line:rgba(255,255,255,.1);
+    --line-strong:rgba(255,255,255,.16);
+    --text:rgba(255,255,255,.92);
+    --text-2:rgba(255,255,255,.6);
+    --text-3:rgba(255,255,255,.38);
+    --blue:#4d65ff; --blue-2:#6d7cff; --blue-strong:#3444da;
+    --grad:linear-gradient(90deg,#4f69d4,#a0b3ff);
+    --radius:16px;
+    --shadow:0 24px 70px rgba(0,0,0,.6);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
-    color:var(--text); line-height:1.6; -webkit-font-smoothing:antialiased;
-    background:
-      radial-gradient(1100px 600px at 85% -10%, rgba(124,141,255,.16), transparent 60%),
-      radial-gradient(900px 560px at -5% 30%, rgba(52,224,161,.10), transparent 55%),
-      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
-    background-attachment:fixed;
-  }
-  a{color:var(--accent); text-decoration:none;}
-  .wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+  body{font-family:"Outfit",system-ui,sans-serif; background:var(--bg); color:var(--text);
+    line-height:1.6; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+  a{color:var(--blue-2); text-decoration:none;}
+  .wrap{max-width:1160px; margin:0 auto; padding:0 24px 70px;}
 
   .topbar{display:flex; align-items:center; justify-content:space-between; padding:22px 0; border-bottom:1px solid var(--line);}
-  .brand{display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:-.3px; font-size:18px;}
-  .brand .logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b0f1f;font-size:17px;font-weight:800;}
-  .brand b{color:#fff;}
-  .topnav{display:flex; gap:8px; align-items:center;}
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand .logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--blue-strong),var(--blue)); color:#fff; font-weight:700; font-size:16px;}
+  .brand .name{font-size:17px; font-weight:500; letter-spacing:-.2px; color:var(--text);}
+  .brand .name b{font-weight:600;}
+  .topnav{display:flex; gap:10px; align-items:center;}
   .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px;
-    background:var(--card); border:1px solid var(--line-strong); font-size:13px; font-weight:600; color:var(--muted);}
-  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2); box-shadow:0 0 0 4px rgba(52,224,161,.18); animation:pulse 2s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-  .pill.live{border-color:rgba(124,141,255,.4); color:var(--accent);}
+    border:1px solid var(--line-strong); font-size:13px; font-weight:400; color:var(--text-2); background:var(--panel);}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--blue-2); box-shadow:0 0 0 4px rgba(109,124,255,.15); animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
 
-  header{padding:64px 0 30px; text-align:center;}
-  .eyebrow{display:inline-block; padding:8px 16px; border-radius:999px; font-size:13px; font-weight:600;
-    letter-spacing:.04em; color:var(--accent2); background:rgba(52,224,161,.1); border:1px solid rgba(52,224,161,.25);}
-  h1{font-size:clamp(36px,6vw,58px); font-weight:800; margin:22px 0 16px; letter-spacing:-1px; line-height:1.05;}
-  h1 em{font-style:normal; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .tag{color:var(--muted); font-size:clamp(16px,2vw,19px); max-width:680px; margin:0 auto 24px;}
-  .tag b{color:#e8edff;}
-  .loop{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; color:var(--muted); font-size:14px; font-weight:500; margin-bottom:26px;}
-  .loop b{color:var(--accent2); font-weight:700;}
-  .loop .arr{color:var(--faint); padding:0 4px;}
-  .cta{display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
-  .btn{display:inline-flex; align-items:center; gap:8px; padding:14px 24px; border-radius:14px; font-weight:700; font-size:15px; transition:.15s; font-family:inherit;}
-  .btn.primary{background:linear-gradient(135deg,var(--accent),#5f74ff); color:#fff; box-shadow:0 10px 30px rgba(124,141,255,.35);}
-  .btn.primary:hover{transform:translateY(-2px); box-shadow:0 14px 36px rgba(124,141,255,.45);}
-  .btn.ghost{border:1px solid var(--line-strong); color:var(--text); background:var(--card);}
-  .btn.ghost:hover{background:var(--card-strong); border-color:var(--accent);}
-  .hero-note{margin-top:16px; color:var(--faint); font-size:14px;}
-  .hero-note b{color:var(--accent2);}
+  header{text-align:center; padding:84px 0 40px;}
+  .eyebrow{display:inline-block; padding:8px 16px; border-radius:999px; font-size:13px; font-weight:500; letter-spacing:.04em;
+    color:var(--blue-2); background:rgba(77,101,255,.08); border:1px solid rgba(109,124,255,.24);}
+  h1{font-size:clamp(40px,7vw,68px); font-weight:400; letter-spacing:-1.6px; line-height:1.02; margin:26px 0 20px;}
+  h1 strong{font-weight:500; background:linear-gradient(90deg,#7a87ff,#9aa6ff); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .tag{color:var(--text-2); font-size:clamp(17px,2vw,20px); max-width:700px; margin:0 auto 26px; font-weight:300;}
+  .tag b{color:#fff; font-weight:500;}
+  .loop{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; color:var(--text-3); font-size:13.5px; font-weight:400; margin-bottom:8px;}
+  .loop b{color:var(--text); font-weight:500;}
+  .loop .arr{color:var(--text-3); padding:0 4px;}
 
-  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:16px; margin:34px 0;}
-  .kpi{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 20px; box-shadow:var(--shadow); position:relative; overflow:hidden;}
-  .kpi::before{content:""; position:absolute; inset:0 0 auto 0; height:3px;
-    background:linear-gradient(90deg,var(--accent),var(--accent2)); opacity:.7;}
-  .kpi .v{font-size:30px; font-weight:800; letter-spacing:-.5px;}
-  .kpi .l{color:var(--muted); font-size:13px; margin-top:4px;}
-  .kpi .v.s{color:var(--accent2);} .kpi .v.w{color:var(--warn);} .kpi .v.a{color:var(--accent);}
+  /* signature micro1 conic-border button */
+  .cta{display:flex; gap:16px; justify-content:center; flex-wrap:wrap; align-items:center; margin-top:24px;}
+  .btn-wrap{display:inline-block; position:relative; padding:1px; border-radius:13px;}
+  .btn-wrap .ring{position:absolute; inset:-1px; border-radius:13px; overflow:hidden; pointer-events:none;}
+  .btn-wrap .ring:before{content:""; position:absolute; top:-60%; left:-60%; width:220%; height:220%;
+    background:conic-gradient(from 0deg, #0039ff 0deg, rgba(255,255,255,0) 80deg, rgba(255,255,255,0) 300deg, #0039ff 360deg);
+    animation:spin 5s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .btn-wrap a{display:inline-flex; align-items:center; gap:10px; position:relative; z-index:1;
+    background:var(--panel); color:#fff; font-weight:500; font-size:15px; padding:16px 28px; border-radius:12px; transition:.15s;}
+  .btn-wrap a:hover{background:#1c1c1f;}
+  .btn-wrap.ghost .ring{display:none;}
+  .btn-wrap.ghost a{background:transparent; border:1px solid var(--line-strong); color:var(--text-2); font-weight:400; font-size:14px;}
+  .btn-wrap.ghost a:hover{border-color:var(--blue); color:#fff;}
+  .hero-note{margin-top:20px; color:var(--text-3); font-size:14px; font-weight:300;}
+  .hero-note b{color:var(--blue-2); font-weight:500;}
 
-  .try{cursor:pointer; margin:30px 0 6px; padding:26px; border-radius:var(--radius);
-    background:linear-gradient(120deg,rgba(124,141,255,.16),rgba(52,224,161,.12)); border:1px solid var(--line-strong);
-    text-align:center; box-shadow:var(--shadow); transition:.15s;}
-  .try:hover{transform:translateY(-2px); border-color:var(--accent);}
-  .try .big{font-size:20px; font-weight:800; color:#fff;}
-  .try .big a{color:var(--accent2);}
-  .try p{color:var(--muted); margin-top:8px; font-size:14.5px;}
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:14px; margin:40px 0;}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px 20px; box-shadow:var(--shadow); position:relative;}
+  .kpi .v{font-size:32px; font-weight:500; letter-spacing:-.6px; line-height:1;}
+  .kpi .l{color:var(--text-3); font-size:13px; margin-top:8px; font-weight:300;}
+  .kpi .v.s{color:#9ae3c0;} .kpi .v.w{color:#ffc46b;} .kpi .v.a{color:#aab4ff;}
 
-  h2{font-size:28px; font-weight:800; margin:48px 0 8px; letter-spacing:-.5px;}
-  .sub{color:var(--muted); margin-bottom:22px; max-width:780px;}
-  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:24px; margin:14px 0; box-shadow:var(--shadow);}
+  h2{font-size:clamp(22px,3vw,30px); font-weight:400; letter-spacing:-.5px; margin:52px 0 8px;}
+  h2 strong{font-weight:500; color:#fff;}
+  .sub{color:var(--text-2); margin-bottom:22px; max-width:780px; font-weight:300;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px; margin:14px 0; box-shadow:var(--shadow);}
   .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px;}
 
   .io{display:flex; align-items:flex-start; gap:16px; padding:14px 8px; border-bottom:1px solid var(--line);}
   .io:last-child{border-bottom:0;}
-  .io .step{flex-shrink:0; width:38px; height:38px; border-radius:11px; background:var(--card-strong); border:1px solid var(--line-strong);
-    display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--accent2);}
-  .io b{display:block; font-size:17px;}
-  .io p{color:var(--muted); font-size:14px; margin-top:3px;}
-  .io small{display:block; margin-top:5px; font-size:12px; color:var(--faint); font-family:"JetBrains Mono",Consolas,monospace;}
+  .io .step{flex-shrink:0; width:36px; height:36px; border-radius:10px; background:var(--panel-2); border:1px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center; font-weight:500; color:var(--blue-2);}
+  .io b{display:block; font-size:17px; font-weight:500;}
+  .io p{color:var(--text-2); font-size:14px; margin-top:3px; font-weight:300;}
+  .io small{display:block; margin-top:5px; font-size:12px; color:var(--text-3); font-family:"JetBrains Mono",Consolas,monospace; font-weight:400;}
 
   table{width:100%; border-collapse:collapse; font-size:14px;}
-  th,td{padding:11px 12px; text-align:left; border-bottom:1px solid var(--line);}
-  th{color:var(--faint); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.05em;}
-  td b{color:var(--accent2);}
-  code{background:var(--card-strong); border:1px solid var(--line); border-radius:6px; padding:2px 7px; font-family:"JetBrains Mono",monospace; font-size:13px;}
+  th,td{padding:11px 12px; text-align:left; border-bottom:1px solid var(--line); font-weight:300;}
+  th{color:var(--text-3); font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:.05em;}
+  td b{color:#aab4ff; font-weight:500;}
+  code{background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:2px 7px; font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--text-2);}
 
-  .chart-box{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; margin:14px 0; box-shadow:var(--shadow);}
+  .chart-box{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px; margin:14px 0; box-shadow:var(--shadow);}
   .chart-box iframe{width:100%; height:340px; border:0; border-radius:10px; background:#fff;}
   .chart-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(460px,1fr)); gap:16px;}
   .chart-grid .chart-box{margin:0;}
 
-  .callout{background:linear-gradient(120deg,rgba(52,224,161,.14),transparent); border-left:3px solid var(--accent2);
-    padding:18px 20px; border-radius:0 14px 14px 0; margin:18px 0;}
+  .callout{background:linear-gradient(120deg,rgba(109,124,255,.14),transparent); border-left:3px solid var(--blue-2);
+    padding:18px 20px; border-radius:0 12px 12px 0; margin:18px 0; font-weight:300; color:var(--text-2);}
+  .callout b{color:#fff; font-weight:500;}
 
   .muted-box{font-family:"JetBrains Mono",monospace; font-size:13px; color:#9fb0d8; line-height:1.9; white-space:pre; overflow-x:auto;}
-  .foot{text-align:center; color:var(--faint); font-size:13px; padding:52px 0 60px;}
-  .foot a{color:var(--accent);}
-  @media(max-width:560px){ h1{font-size:38px;} .chart-grid{grid-template-columns:1fr;} .topnav{display:none;} }
+  .foot{text-align:center; color:var(--text-3); font-size:13px; padding:52px 0 0; font-weight:300;}
+  .foot a{color:var(--blue-2);}
+  @media(max-width:560px){ h1{font-size:40px;} .chart-grid{grid-template-columns:1fr;} .topnav{display:none;} }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div class="brand"><div class="logo">A</div><span><b>Attention</b>OS</span></div>
+    <div class="brand"><div class="logo">A</div><div class="name"><b>Attention</b>OS</div></div>
     <div class="topnav">
-      <span class="pill live"><span class="dot"></span>Engine live in browser</span>
+      <span class="pill"><span class="dot"></span>Engine live in browser</span>
       <span class="pill">Python · FastAPI · Streamlit</span>
     </div>
   </div>
 
   <header>
     <span class="eyebrow">Portfolio · Production-style ML data product</span>
-    <h1>Attention<em>OS</em></h1>
-    <p class="tag">An AI decision engine that tells a product <b>what to do next for every user</b> — turning raw behavioral data into a single, explainable, tested action.</p>
+    <h1>AttentionOS — the AI layer that tells your product <strong>what to do next.</strong></h1>
+    <p class="tag">Turning raw user behavior into a single, explainable, tested decision — <b>one action per user, justified by real reasoning.</b></p>
     <div class="loop">
       <b>Behavior</b><span class="arr">→</span><b>Predict</b><span class="arr">→</span><b>Decide</b><span class="arr">→</span><b>Guardrails</b><span class="arr">→</span><b>Act</b><span class="arr">→</span><b>Experiment</b>
     </div>
     <div class="cta">
-      <a class="btn primary" href="demo/index.html">▶ Launch the live demo</a>
-      <a class="btn ghost" href="https://github.com/tejas-parjane/attention-os">View on GitHub</a>
-      <a class="btn ghost" href="#how">Run it locally</a>
+      <span class="btn-wrap"><span class="ring"></span><a href="demo/index.html">▶ &nbsp;Launch the live demo</a></span>
+      <span class="btn-wrap ghost"><a href="https://github.com/tejas-parjane/attention-os">View on GitHub</a></span>
+      <span class="btn-wrap ghost"><a href="#how">Run it locally</a></span>
     </div>
-    <div class="hero-note">Not a static mock — the <b>decision engine runs live in your browser</b> on the real 500-user dataset. Pick a user, change the objective, read the engine's reasoning.</div>
+    <div class="hero-note">Not a static mock — the <b>decision engine runs live in your browser</b> on the real 500-user dataset.</div>
   </header>
 
   <div class="kpis">
@@ -140,33 +140,28 @@
     <div class="kpi"><div class="v a">$55K</div><div class="l">Total lifetime revenue</div></div>
     <div class="kpi"><div class="v a">0.84</div><div class="l">Retention model ROC-AUC (test)</div></div>
     <div class="kpi"><div class="v a">0.89</div><div class="l">Monetization model ROC-AUC (test)</div></div>
-    <div class="kpi"><div class="v s">64%</div><div class="l">Users receive <b>NO_ACTION</b> (restraint)</div></div>
-  </div>
-
-  <div class="try" onclick="location.href='demo/index.html'">
-    <div class="big">→ Try it: <a href="demo/index.html">launch the interactive decision engine</a></div>
-    <p>Select any of the 500 users, switch the business objective, and watch the engine pick an action with full reasoning, guardrails and a plain-language explanation — computed live in your browser from the real data.</p>
+    <div class="kpi"><div class="v s">64%</div><div class="l">Users receive <b style="color:#fff">NO_ACTION</b> (restraint)</div></div>
   </div>
 
   <h2>What it does</h2>
-  <p class="sub">Consumer products generate millions of events (sessions, purchases, notifications, level-ups). Collecting it is easy — deciding what to do next, respecting business rules, and <b>proving the decision worked</b>, is the hard part. AttentionOS makes that loop explicit, measurable, and improvable.</p>
+  <p class="sub">Consumer products generate millions of events (sessions, purchases, notifications, level-ups). Collecting it is easy — deciding what to do next, respecting business rules, and <b style="color:#fff; font-weight:500">proving the decision worked</b>, is the hard part. AttentionOS makes that loop explicit, measurable, and improvable.</p>
 
-  <h2>The system, end to end</h2>
+  <h2>The system, <strong>end to end</strong></h2>
   <div class="card">
-    <div class="io"><div class="step">1</div><div><b>Behavior</b><p>Synthetic event generator — 15 event types, 8 user archetypes (whale, casual, at-risk, declining…), with <b>irreducible return noise</b> so behavior isn't perfectly predictable (which is why metrics are realistic, not 1.0).</p><small>src/data/generator.py</small></div></div>
-    <div class="io"><div class="step">2</div><div><b>Feature Engineering</b><p>40 leakage-safe rolling-window features — recency, frequency, intensity, trend, diversity. Each feature uses only <b>past</b> data (strict reference-date cutoff before the label window).</p><small>src/features/engine.py</small></div></div>
-    <div class="io"><div class="step">3</div><div><b>Prediction</b><p>Will the user return in 7 days? Will they purchase in 7 days? Three model families (Logistic · Random Forest · XGBoost) on a <b>chronological 70/15/15 split</b>; best selected on test ROC-AUC.</p><small>src/models/retention.py · monetization.py</small></div></div>
-    <div class="io"><div class="step">4</div><div><b>Decision</b><p>A <b>deterministic</b> decision engine scores candidate actions by expected value minus cost, fatigue and risk; applies <b>guardrails</b> as hard constraints; may return <b>NO_ACTION</b> when confidence is low.</p><small>src/decision_engine/engine.py</small></div></div>
+    <div class="io"><div class="step">1</div><div><b>Behavior</b><p>Synthetic event generator — 15 event types, 8 user archetypes (whale, casual, at-risk, declining…), with <b style="color:#fff;font-weight:500">irreducible return noise</b> so behavior isn't perfectly predictable (which is why metrics are realistic, not 1.0).</p><small>src/data/generator.py</small></div></div>
+    <div class="io"><div class="step">2</div><div><b>Feature Engineering</b><p>40 leakage-safe rolling-window features — recency, frequency, intensity, trend, diversity. Each feature uses only <b style="color:#fff;font-weight:500">past</b> data (strict reference-date cutoff before the label window).</p><small>src/features/engine.py</small></div></div>
+    <div class="io"><div class="step">3</div><div><b>Prediction</b><p>Will the user return in 7 days? Will they purchase in 7 days? Three model families (Logistic · Random Forest · XGBoost) on a <b style="color:#fff;font-weight:500">chronological 70/15/15 split</b>; best selected on test ROC-AUC.</p><small>src/models/retention.py · monetization.py</small></div></div>
+    <div class="io"><div class="step">4</div><div><b>Decision</b><p>A <b style="color:#fff;font-weight:500">deterministic</b> decision engine scores candidate actions by expected value minus cost, fatigue and risk; applies <b style="color:#fff;font-weight:500">guardrails</b> as hard constraints; may return <b style="color:#fff;font-weight:500">NO_ACTION</b> when confidence is low.</p><small>src/decision_engine/engine.py</small></div></div>
     <div class="io"><div class="step">5</div><div><b>Explanation</b><p>Every decision ships with a plain-language AI explanation (provider-agnostic LLM) plus a guaranteed deterministic fallback.</p><small>src/llm/explainer.py</small></div></div>
     <div class="io"><div class="step">6</div><div><b>Experimentation</b><p>Deterministic hash-based A/B assignment + Welch's t-test significance analysis — we measure whether the action actually worked and feed it back.</p><small>src/experiments/engine.py</small></div></div>
     <div class="io"><div class="step">7</div><div><b>Serving + Monitoring</b><p>FastAPI backend (9 endpoints) + Streamlit dashboard (5 pages) + decision/outcome tracking for auditability.</p><small>src/api/ · dashboard/ · src/monitoring/</small></div></div>
   </div>
 
-  <h2>Model performance (held-out test set)</h2>
-  <p class="sub">Honest, believable numbers — not the fake "1.0 on demo data" you often see.</p>
+  <h2>Model performance — <strong>held-out test set</strong></h2>
+  <p class="sub">Honest, believable numbers. Not the fake "1.0 on demo data" you often see.</p>
   <div class="grid2">
     <div class="card">
-      <h3 style="margin-bottom:12px; font-size:18px;">Retention (returns in 7 days)</h3>
+      <h3 style="margin-bottom:14px; font-size:18px; font-weight:500;">Retention (returns in 7 days)</h3>
       <table>
         <tr><th>Model</th><th>ROC-AUC</th><th>PR-AUC</th><th>F1</th><th>Brier</th></tr>
         <tr><td><b>Logistic</b></td><td><b>0.84</b></td><td>0.66</td><td>0.78</td><td>0.16</td></tr>
@@ -175,7 +170,7 @@
       </table>
     </div>
     <div class="card">
-      <h3 style="margin-bottom:12px; font-size:18px;">Monetization (purchases in 7 days)</h3>
+      <h3 style="margin-bottom:14px; font-size:18px; font-weight:500;">Monetization (purchases in 7 days)</h3>
       <table>
         <tr><th>Model</th><th>ROC-AUC</th><th>PR-AUC</th><th>F1</th><th>Brier</th></tr>
         <tr><td>Logistic</td><td>0.89</td><td>0.53</td><td>0.58</td><td>0.19</td></tr>
@@ -185,8 +180,8 @@
     </div>
   </div>
 
-  <h2>Live dashboards from the data</h2>
-  <p class="sub">Every chart below is an <b>interactive</b> Plotly chart rendered from the actual project data (six trained models, 500 users, one experiment).</p>
+  <h2>Live dashboards <strong>from the data</strong></h2>
+  <p class="sub">Interactive Plotly charts rendered from the actual project data (six trained models, 500 users, one experiment).</p>
   <div class="chart-grid">
     <div class="chart-box"><iframe loading="lazy" src="charts/daily_active.html" title="Daily Active Users"></iframe></div>
     <div class="chart-box"><iframe loading="lazy" src="charts/engagement_mix.html" title="Engagement Mix"></iframe></div>
@@ -204,7 +199,7 @@
     the α = 0.05 bar.
   </div>
 
-  <h2>Recommended actions (500 users)</h2>
+  <h2>Recommended actions — <strong>500 users</strong></h2>
   <div class="card">
     <table>
       <tr><th>Action</th><th>Share</th><th>Purpose</th></tr>
@@ -217,9 +212,9 @@
     </table>
   </div>
 
-  <h2 id="how">Run the full demo yourself</h2>
+  <h2 id="how">Run the full demo <strong>yourself</strong></h2>
   <div class="card">
-    <p style="margin-bottom:14px">Everything ships in the repo — the trained models and generated data are included, so <b>no retraining or regeneration is needed</b> to serve the demo.</p>
+    <p style="margin-bottom:14px; color:var(--text-2); font-weight:300">Everything ships in the repo — the trained models and generated data are included, so <b style="color:#fff;font-weight:500">no retraining or regeneration is needed</b> to serve the demo.</p>
     <table>
       <tr><th>Step</th><th>Command</th></tr>
       <tr><td>Clone</td><td><code>git clone https://github.com/tejas-parjane/attention-os.git</code></td></tr>
@@ -228,11 +223,11 @@
       <tr><td>Dashboard</td><td><code>streamlit run dashboard/app.py</code> → open <code>http://localhost:8501</code></td></tr>
       <tr><td>API docs</td><td><code>http://localhost:8000/docs</code></td></tr>
     </table>
-    <p style="color:var(--muted); font-size:14px; margin-top:16px">Reproduce everything from scratch (data → features → models → predictions → decisions → experiments):</p>
+    <p style="color:var(--text-3); font-size:14px; margin-top:16px; font-weight:300">Reproduce everything from scratch (data → features → models → predictions → decisions → experiments):</p>
     <div class="muted-box">python scripts/generate_data.py && python scripts/build_features.py && python scripts/train_models.py && python scripts/generate_predictions.py && python scripts/run_decision_engine.py && python scripts/run_experiment_analysis.py</div>
   </div>
 
-  <h2>Project structure</h2>
+  <h2>Project <strong>structure</strong></h2>
   <div class="card"><div class="muted-box">
 attention-os/
 ├─ src/
@@ -251,14 +246,14 @@ attention-os/
 └─ data/               raw · processed · models (.joblib)
   </div></div>
 
-  <h2>Honest limitations</h2>
+  <h2>Honest <strong>limitations</strong></h2>
   <div class="card">
     <p class="sub" style="margin-bottom:10px">This is a portfolio demonstration, and I'm upfront about it:</p>
-    <ul style="color:var(--muted); padding-left:20px; line-height:2">
-      <li><b>Synthetic data</b> — generated, not real users; the pipeline is designed so real event streams can be substituted without changing downstream code.</li>
-      <li><b>No true causal inference from models</b> — predictions are correlational; only the experiment framework gives causal estimates.</li>
-      <li><b>Simulated treatment effects</b> — experiment outcomes are simulated, not measured from real user responses.</li>
-      <li><b>Heuristic LTV</b> — LTV uses a simple purchase-probability approximation, not formal survival/causal LTV.</li>
+    <ul style="color:var(--text-2); padding-left:20px; line-height:2; font-weight:300">
+      <li><b style="color:#fff;font-weight:500">Synthetic data</b> — generated, not real users; the pipeline is designed so real event streams can be substituted without changing downstream code.</li>
+      <li><b style="color:#fff;font-weight:500">No true causal inference from models</b> — predictions are correlational; only the experiment framework gives causal estimates.</li>
+      <li><b style="color:#fff;font-weight:500">Simulated treatment effects</b> — experiment outcomes are simulated, not measured from real user responses.</li>
+      <li><b style="color:#fff;font-weight:500">Heuristic LTV</b> — LTV uses a simple purchase-probability approximation, not formal survival/causal LTV.</li>
     </ul>
   </div>
 
