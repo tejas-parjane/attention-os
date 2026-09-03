@@ -1,5 +1,8 @@
 # AttentionOS — AI User Retention & Monetization Decision Engine
 
+> ### 🔗 Live demo: **[tejas-parjane.github.io/attention-os](https://tejas-parjane.github.io/attention-os)**
+> Interactive landing page with real metrics and dashboards (GitHub Pages). Full source below.
+
 A portfolio project that turns raw behavioral data into a **single, explainable decision**: *what should the product do next for this user?*
 
 AttentionOS demonstrates a complete, production-style ML loop:
