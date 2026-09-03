@@ -1,0 +1,4 @@
+model,roc_auc,pr_auc,precision,recall,f1,brier,true_pos,false_pos,true_neg,false_neg
+logistic,0.8902,0.5313,0.4231,0.9167,0.5789,0.1874,11,15,48,1
+random_forest,0.8948,0.5514,0.45,0.75,0.5625,0.1212,9,11,52,3
+xgboost,0.8757,0.5112,0.4348,0.8333,0.5714,0.1741,10,13,50,2

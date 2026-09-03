@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: attention_os
+      POSTGRES_USER: attention_os
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U attention_os"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://attention_os:password@db:5432/attention_os
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+
+  dashboard:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      DATABASE_URL: postgresql://attention_os:password@db:5432/attention_os
+    depends_on:
+      db:
+        condition: service_healthy
+    command: streamlit run dashboard/app.py --server.port 8501 --server.address 0.0.0.0
+
+volumes:
+  pgdata:
