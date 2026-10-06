@@ -46,3 +46,6 @@ select = ["E", "F", "I", "N", "UP"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
