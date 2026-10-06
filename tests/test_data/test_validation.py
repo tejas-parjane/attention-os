@@ -75,6 +75,9 @@ class TestValidateNullUserId:
 class TestValidateTimestamps:
     def test_invalid_timestamps_flagged(self):
         df = _clean_df()
+        # pandas >= 2 refuses to assign a string into a datetime64 column,
+        # so widen the dtype first to inject the unparseable value.
+        df["timestamp"] = df["timestamp"].astype(object)
         df.loc[2, "timestamp"] = "not-a-date"
         with pytest.raises(DataValidationError, match="timestamp"):
             validate_events(df, fail_loud=True)
