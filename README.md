@@ -1,4 +1,7 @@
-# AttentionOS — AI User Retention & Monetization Decision Engine
+# AttentionOS — Predictive ML Decision System (Retention & Monetization)
+
+> **Independent Data Science project** (self-directed, synthetic behavioral data). Not a client engagement.
+> Recruiter quick read: leakage-safe features → Logistic / Random Forest / XGBoost on a chronological split (best by ROC-AUC) → decision engine with guardrails → Welch's t-test experiments → FastAPI + Streamlit. Full metric tables below.
 
 > ### 🔗 Live demo: **[tejas-parjane.github.io/attention-os](https://tejas-parjane.github.io/attention-os)**
 > Interactive landing page with real metrics and dashboards (GitHub Pages). Full source below.
@@ -129,8 +132,8 @@ Because there are 500 users, you can explore many behaviors. A declining, low-in
 
 ### Prerequisites
 
-- Python 3.11+ 
-- `E:\anaconda3\python.exe` (or any env with `scikit-learn`, `xgboost`, `fastapi`, `streamlit`, `pydantic`)
+- Python 3.11+
+- A virtual environment with `scikit-learn`, `xgboost`, `fastapi`, `streamlit`, `pydantic` (see `pyproject.toml`)
 - SQLite works out of the box; PostgreSQL via `docker-compose` is optional
 
 ### Run the full pipeline
@@ -331,4 +334,4 @@ See [`docs/demo_script.md`](docs/demo_script.md) for a full narrated 15–20 min
 
 ## License
 
-MIT (portfolio demonstration)
+Apache-2.0 (see LICENSE) — independent portfolio demonstration on synthetic data.
