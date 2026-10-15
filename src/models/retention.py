@@ -166,15 +166,21 @@ def train_retention_model(
     y: pd.Series,
     reference_dates: Optional[pd.Series] = None,
 ) -> Tuple[Dict[str, Any], Dict[str, Dict[str, float]]]:
-    """Train three classifiers with a time-aware 70/15/15 split.
+    """Train three classifiers on a stratified 70/15/15 user split.
+
+    Temporal separation is enforced by construction: every row shares one
+    prediction date, all features are computed strictly before it and all
+    labels strictly after it, so no future information can leak between
+    folds.  Users are then assigned to folds with a stratified shuffle
+    split (see ``scripts/train_models.py``), preserving the positive rate.
 
     Parameters
     ----------
     X, y:
         Feature matrix and binary labels.
     reference_dates:
-        If supplied the split is chronological; otherwise a random split
-        is used (still stratified on *y*).
+        Retained for API compatibility; the split itself is stratified,
+        not chronological (all rows share one prediction date).
 
     Returns
     -------

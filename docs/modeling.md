@@ -80,37 +80,31 @@ All features are computed using **rolling windows** with strict temporal boundar
 
 ---
 
-## Temporal Split Strategy
+## Split Strategy: Fixed Prediction Date + Stratified User Split
 
-### Why Not Random Split?
+### Why a fixed prediction date?
 
-A random train/test split would place sessions from the same user (and even the same day) across both sets. This creates **data leakage** — the model learns patterns that would not be available at inference time.
+Every model answers one question: *"as of prediction date T0, what will this user do in the next 7 days?"* All rows share a single T0 (`max_ts − 14d`, see `scripts/train_models.py`):
 
-Specifically, random splits allow:
-- **Same-user leakage**: The model sees user *i*'s future behavior in training and memorizes it, leading to artificially high validation metrics.
-- **Temporal leakage**: Features computed from data after the prediction point contaminate the training set.
+- **Features** for every user are computed strictly from events with `timestamp < T0`.
+- **Labels** for every user come strictly from events in `(T0, T0 + 7d]`.
 
-### How We Split
+Temporal separation therefore holds **by construction for every user** — no feature can see the future, and no label can leak into training, regardless of how users are assigned to folds. This is the standard "snapshot prediction" setup and matches deployment, where the model always scores users as of *now* using only past behavior.
 
-```
-Training set:   users/sessions from Day 1 → Day 60
-Validation set: users/sessions from Day 61 → Day 75
-```
+### How users are assigned to folds
 
-- The split is **hard temporal** — no overlap in time between training and validation.
-- Users who appear in both periods have their earlier sessions in training and later sessions in validation. This is correct and desirable — it mimics the real deployment scenario where we train on historical data and predict on future users.
-- **No user is fully excluded from training just because they appear in validation** — their historical sessions still contribute to feature computation and label generation for training users.
-
-### Implementation
+Within that guarantee, users are assigned to train/val/test (70/15/15) with a **stratified shuffle split** (`sklearn.model_selection.StratifiedShuffleSplit`, `random_state=42`), so each fold preserves the positive-class rate. This is *not* a chronological split — with a single shared T0 there is no per-row time ordering to split on, and pretending otherwise would be dishonest. What matters for leakage is the T0 boundary above, which is enforced in code (`src/features/engine.py` only accepts `timestamp < reference_date`) and covered by leakage tests (`tests/test_features/test_features.py::TestLeakagePrevention`).
 
 ```python
-cutoff_date = training_end_date  # e.g., Day 60
-train_mask = df["event_date"] <= cutoff_date
-val_mask = df["event_date"] > cutoff_date
-
-X_train, y_train = df.loc[train_mask, features], df.loc[train_mask, target]
-X_val, y_val = df.loc[val_mask, features], df.loc[val_mask, target]
+splitter = StratifiedShuffleSplit(n_splits=1, test_size=0.30, random_state=42)
+train_idx, temp_idx = next(splitter.split(X, y))   # 70 / 30
+splitter2 = StratifiedShuffleSplit(n_splits=1, test_size=0.50, random_state=42)
+val_idx, test_idx = ...                            # 15 / 15 of total
 ```
+
+- The split is **stratified** — each fold keeps the dataset's positive rate.
+- The split is **seeded** — `random_state=42` makes it exactly reproducible.
+- **No user appears in two folds** — the unit of splitting is the user, so same-user leakage is impossible.
 
 ---
 
@@ -121,7 +115,8 @@ X_val, y_val = df.loc[val_mask, features], df.loc[val_mask, target]
 | **Forward-fill prevention** | Features are computed *only* from historical data. The feature engineering pipeline enforces a strict cutoff — no future data is accessible during computation. |
 | **Label timing** | Labels are assigned based on events occurring *after* the feature computation timestamp, ensuring the model cannot "see" the label at prediction time. |
 | **No target leakage in features** | Features like `purchases_last_30d` use a window that ends at the prediction point, not at the end of the dataset. |
-| **Temporal ordering** | Data is sorted by timestamp before splitting. No shuffling. |
+| **Prediction-date boundary** | All features use events strictly before T0; all labels use events strictly after T0. The boundary — not row ordering — is what prevents leakage. |
+| **User-level folds** | Folds contain disjoint users (stratified shuffle, seed 42), so no user contributes to both training and evaluation. |
 | **Audit checks** | The pipeline includes validation assertions that no feature value correlates suspiciously with the target beyond expected levels (>0.9 correlation triggers a warning). |
 
 ---

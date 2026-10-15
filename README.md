@@ -1,7 +1,7 @@
 # AttentionOS — Predictive ML Decision System (Retention & Monetization)
 
 > **Independent Data Science project** (self-directed, synthetic behavioral data). Not a client engagement.
-> Recruiter quick read: leakage-safe features → Logistic / Random Forest / XGBoost on a chronological split (best by ROC-AUC) → decision engine with guardrails → Welch's t-test experiments → FastAPI + Streamlit. Full metric tables below.
+> Recruiter quick read: leakage-safe features → Logistic / Random Forest / XGBoost on a stratified split at a fixed prediction date (best by ROC-AUC) → decision engine with guardrails → Welch's t-test experiments → FastAPI + Streamlit. Full metric tables + experiment log in `docs/model_evaluation.md`.
 
 > ### 🔗 Live demo: **[tejas-parjane.github.io/attention-os](https://tejas-parjane.github.io/attention-os)**
 > Interactive landing page with real metrics and dashboards (GitHub Pages). Full source below.
@@ -49,7 +49,7 @@ Synthetic Behavioral Data → Data Validation → Feature Engineering
 |-------|--------|--------------|
 | **Behavior** | `src/data/generator.py` | Synthesizes event-level data (sessions, purchases, ads, notifications) across 8 user archetypes, with **irreducible stochastic noise** so behavior isn't perfectly predictable |
 | **Feature** | `src/features/engine.py` | Leakage-safe rolling-window features (40 columns) — recency, frequency, intensity, trend, diversity — each computed **strictly before** the prediction point |
-| **Predict** | `src/models/retention.py`, `src/models/monetization.py` | Three models per target (Logistic, Random Forest, XGBoost), trained on a **chronological** 70/15/15 split, best selected by ROC-AUC |
+| **Predict** | `src/models/retention.py`, `src/models/monetization.py` | Three models per target (Logistic, Random Forest, XGBoost), trained on a **stratified** 70/15/15 user split at a fixed prediction date, best selected by ROC-AUC |
 | **State** | `src/models/state.py` | Structured snapshot: engagement trend, retention risk, value segment, notification response |
 | **Decide** | `src/decision_engine/engine.py` | Deterministic scoring of 6 candidate actions against objective alignment, cost, fatigue and risk penalties; **guardrails**; may return `NO_ACTION` |
 | **Explain** | `src/llm/explainer.py` | Provider-agnostic LLM explanation with a guaranteed deterministic fallback |
@@ -61,25 +61,25 @@ Synthetic Behavioral Data → Data Validation → Feature Engineering
 
 ## Results (measured on this project's synthetic data)
 
-> Models are evaluated on a **held-out chronological test set** (the final 15% of data, unseen during training). All three model families are trained per target; the best is selected on test ROC-AUC.
+> Models are evaluated on a **held-out stratified test set** (15% of users, unseen during training, same positive rate as the full data). All three model families are trained per target; the best is selected on test ROC-AUC. See `docs/model_evaluation.md` for the full experiment log.
 
 ### Retention (will the user return within 7 days?)
 
 | Model | ROC-AUC | PR-AUC | Precision | Recall | F1 | Brier |
 |-------|:-------:|:------:|:---------:|:------:|:--:|:-----:|
-| **Logistic (best)** | **0.84** | **0.66** | 0.77 | 0.79 | **0.78** | **0.16** |
-| Random Forest | 0.82 | 0.73 | 0.67 | 0.76 | 0.71 | 0.18 |
-| XGBoost | 0.77 | 0.61 | 0.63 | 0.76 | 0.69 | 0.23 |
+| Logistic | 0.85 | 0.80 | 0.74 | 0.74 | 0.74 | 0.17 |
+| **Random Forest (best)** | **0.86** | **0.83** | 0.71 | 0.74 | **0.72** | **0.17** |
+| XGBoost | 0.82 | 0.75 | 0.70 | 0.76 | 0.73 | 0.22 |
 
 ### Monetization (will the user purchase within 7 days?)
 
 | Model | ROC-AUC | PR-AUC | Precision | Recall | F1 | Brier |
 |-------|:-------:|:------:|:---------:|:------:|:--:|:-----:|
-| Logistic | 0.89 | 0.53 | 0.42 | 0.92 | 0.58 | 0.19 |
-| **Random Forest (best)** | **0.89** | **0.55** | 0.45 | 0.75 | **0.56** | **0.12** |
-| XGBoost | 0.88 | 0.51 | 0.43 | 0.83 | 0.57 | 0.17 |
+| Logistic | 0.82 | 0.43 | 0.41 | 0.58 | 0.48 | 0.17 |
+| **Random Forest (best)** | **0.85** | **0.50** | 0.40 | 0.33 | **0.36** | **0.11** |
+| XGBoost | 0.82 | 0.55 | 0.43 | 0.50 | 0.46 | 0.15 |
 
-These are believable production-grade numbers (not "perfect" — which is the point). Retention is inherently harder to predict than purchase, and both models show meaningful discriminative signal with sober precision/recall trade-offs.
+These are believable production-grade numbers (not "perfect" — which is the point). Note what the table hides: at the default 0.5 threshold the monetization winner recalls only 33% of purchasers — threshold analysis in `docs/model_evaluation.md` shows F1 nearly doubles at threshold 0.30. Both models beat dummy baselines (0.50/0.47 retention, 0.50/0.40 monetization) with meaningful signal and sober precision/recall trade-offs.
 
 ### Decision engine output (500 users)
 
@@ -227,7 +227,8 @@ Full interactive docs at `http://localhost:8000/docs`.
 
 ### Leakage prevention (important)
 
-- **Chronological split** — 70/15/15 by timestamp, never shuffled.
+- **Fixed prediction date** — one T0 for all users: features use events strictly before T0, labels strictly after. Temporal separation holds by construction, so no future information can leak across folds.
+- **Stratified user split** — 70/15/15 via seeded stratified shuffle (`random_state=42`); disjoint users per fold, positive rate preserved.
 - **Features before label** — features are computed as of a reference date that is **strictly before** the label window. No future information is visible to a model.
 - **Rolling windows** — 1/7/30-day aggregates only use past events for each window.
 - **Stochastic target** — the generator injects irreducible return noise, so models learn real signal + noise rather than memorizing a deterministic rule (this is why AUC is ~0.84–0.89, not 1.0).

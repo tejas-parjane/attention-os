@@ -38,19 +38,33 @@ logger = logging.getLogger(__name__)
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def _split(X: pd.DataFrame, y: pd.Series, ref: pd.Series) -> tuple:
-    """Time-aware 70/15/15 split, returning ref slices aligned to each fold."""
-    order = ref.values.argsort()
-    X = X.iloc[order].reset_index(drop=True)
-    y = y.iloc[order].reset_index(drop=True)
-    ref = ref.iloc[order].reset_index(drop=True)
-    n = len(X)
-    train_end = int(n * 0.70)
-    val_end = int(n * 0.85)
+def _split(X: pd.DataFrame, y: pd.Series, ref: pd.Series, seed: int = 42) -> tuple:
+    """Stratified 70/15/15 user split at a fixed prediction date.
+
+    All rows share one prediction date ``T0``: every feature is computed
+    strictly before ``T0`` and every label strictly after it, so temporal
+    separation holds for every user by construction and no future
+    information can leak across the split.  Within that guarantee, users
+    are assigned to train/val/test with a stratified shuffle split
+    (``random_state=42``) so each fold preserves the positive-class rate.
+    Returns ref slices aligned to each fold.
+    """
+    from sklearn.model_selection import StratifiedShuffleSplit
+
+    splitter = StratifiedShuffleSplit(n_splits=1, test_size=0.30, random_state=seed)
+    train_idx, temp_idx = next(splitter.split(X, y))
+    splitter2 = StratifiedShuffleSplit(n_splits=1, test_size=0.50, random_state=seed)
+    rel_val, rel_test = next(splitter2.split(X.iloc[temp_idx], y.iloc[temp_idx]))
+    val_idx = temp_idx[rel_val]
+    test_idx = temp_idx[rel_test]
+
+    def take(frame: pd.DataFrame | pd.Series, idx):
+        return frame.iloc[idx].reset_index(drop=True)
+
     return (
-        X.iloc[:train_end], y.iloc[:train_end], ref.iloc[:train_end],
-        X.iloc[train_end:val_end], y.iloc[train_end:val_end], ref.iloc[train_end:val_end],
-        X.iloc[val_end:], y.iloc[val_end:], ref.iloc[val_end:],
+        take(X, train_idx), take(y, train_idx), take(ref, train_idx),
+        take(X, val_idx), take(y, val_idx), take(ref, val_idx),
+        take(X, test_idx), take(y, test_idx), take(ref, test_idx),
     )
 
 

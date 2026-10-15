@@ -78,9 +78,9 @@ Mention `personalized_challenge` (+0.090, p=0.001) also beat control; `generic_n
 
 Go to **Model Performance**.
 
-> "We train three families per target — Logistic, Random Forest, XGBoost — on a chronological 70/15/15 split, and pick the best on a held-out test set. No shuffling, so models are evaluated on their ability to predict the *future*."
+> "We train three families per target — Logistic, Random Forest, XGBoost — on a stratified 70/15/15 user split at one fixed prediction date, and pick the best on a held-out test set. Features come strictly from before that date and labels strictly from after, so models are evaluated the way they would be deployed: scoring users as of *now* using only past behavior."
 
-> "Retention: ROC-AUC ~0.84. Monetization: ~0.89. These are believable production numbers — **not** 1.0. That's deliberate: real churn has irreducible stochasticity, and our generator includes return-noise so the models learn real signal plus noise rather than memorizing the data."
+> "Retention: ROC-AUC ~0.86. Monetization: ~0.85. These are believable production numbers — **not** 1.0. That's deliberate: real churn has irreducible stochasticity, and our generator includes return-noise so the models learn real signal plus noise rather than memorizing the data."
 
 Show the feature-importance chart and the model comparison table.
 
@@ -90,7 +90,7 @@ Show the feature-importance chart and the model comparison table.
 
 > "The loop is **Behavior → Prediction → Decision → Action → Experiment → Learning**:
 > - Clean interfaces — data, features, models, decisions, API, dashboard are independent and testable.
-> - Leakage prevention — chronological splits, features before labels, strict windows.
+> - Leakage prevention — one prediction date, features before it, labels after it, disjoint users per fold.
 > - Guardrails as hard constraints, not soft penalties.
 > - Experimentation built in — every decision is assigned to a variant.
 > - Deterministic, auditable decisions.
