@@ -47,6 +47,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 from src.models.monetization import build_monetization_dataset
 from src.models.retention import build_retention_dataset
+from src.models.splits import inner_split, outer_split
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s - %(message)s", datefmt="%H:%M:%S")
 logger = logging.getLogger(__name__)
@@ -65,12 +66,15 @@ VALUE_PER_TRUE_POSITIVE = 25.0
 def reproduce_test_split(
     X: pd.DataFrame, y: pd.Series, seed: int = SEED
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Return (train_idx, val_idx, test_idx) identical to train_models._split."""
-    splitter = StratifiedShuffleSplit(n_splits=1, test_size=0.30, random_state=seed)
-    train_idx, temp_idx = next(splitter.split(X, y))
-    splitter2 = StratifiedShuffleSplit(n_splits=1, test_size=0.50, random_state=seed)
-    rel_val, rel_test = next(splitter2.split(X.iloc[temp_idx], y.iloc[temp_idx]))
-    return train_idx, temp_idx[rel_val], temp_idx[rel_test]
+    """Return (pool_fit_idx, pool_val_idx, test_idx) identical to training.
+
+    Mirrors ``scripts/train_models.py`` + the inner split in the train
+    functions: outer 85/15 via :func:`outer_split`, then :func:`inner_split`
+    on the pool. All indices are positional into ``X``/``y`` as passed.
+    """
+    pool_idx, test_idx = outer_split(X, y, seed=seed)
+    rel_fit, rel_val = inner_split(X.iloc[pool_idx], y.iloc[pool_idx], seed=seed)
+    return pool_idx[rel_fit], pool_idx[rel_val], test_idx
 
 
 def dummy_baselines(
@@ -215,6 +219,8 @@ def analyze_task(
     models_dir: Path,
     X_train: pd.DataFrame,
     y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series,
     X_test: pd.DataFrame,
     y_test: pd.Series,
     test_user_ids: pd.Series,
@@ -229,22 +235,29 @@ def analyze_task(
         models[name] = joblib.load(fp)
 
     per_model = {}
+    val_auc: dict[str, float] = {}
     for name, model in models.items():
         proba = np.asarray(model.predict_proba(X_test)[:, 1], dtype=float)
+        val_proba = np.asarray(model.predict_proba(X_val)[:, 1], dtype=float)
+        val_auc[name] = round(float(roc_auc_score(y_val, val_proba)), 4)
         per_model[name] = {
+            "val_roc_auc": val_auc[name],
             "roc_auc": round(float(roc_auc_score(y_test, proba)), 4),
             "pr_auc": round(float(average_precision_score(y_test, proba)), 4),
             "thresholds": threshold_sweep(y_test, proba),
             "calibration": calibration_summary(y_test, proba),
         }
 
-    best = max(per_model, key=lambda n: per_model[n]["roc_auc"])
+    # Selection on VALIDATION ROC-AUC; test numbers are the final estimate.
+    best = max(val_auc, key=lambda n: val_auc[n])
     best_proba = np.asarray(models[best].predict_proba(X_test)[:, 1], dtype=float)
     f1_threshold = per_model[best]["thresholds"]["f1_max"]["threshold"]
 
     return {
         "n_test": int(len(y_test)),
         "test_positive_rate": round(float(np.asarray(y_test).mean()), 4),
+        "selection": {"criterion": "validation ROC-AUC (never the test set)",
+                      "val_roc_auc": {k: per_model[k]["val_roc_auc"] for k in per_model}},
         "dummy_baselines": dummy_baselines(X_train, y_train, X_test, y_test),
         "models": per_model,
         "best_model": best,
@@ -277,11 +290,12 @@ def main() -> None:
     ):
         X, y, _ref = builder(features_df, events_df, reference_date=reference_date)
         user_ids = features_df["user_id"].reset_index(drop=True)
-        train_idx, _val_idx, test_idx = reproduce_test_split(X, y)
+        fit_idx, val_idx, test_idx = reproduce_test_split(X, y)
         report["tasks"][task] = analyze_task(
             task, X, y, user_ids, users_df,
             ROOT / "data" / "models" / dirname,
-            X.iloc[train_idx], y.iloc[train_idx],
+            X.iloc[fit_idx], y.iloc[fit_idx],
+            X.iloc[val_idx], y.iloc[val_idx],
             X.iloc[test_idx], y.iloc[test_idx],
             user_ids.iloc[test_idx].reset_index(drop=True),
         )
@@ -297,11 +311,11 @@ def main() -> None:
               f"stratified ROC-AUC={rep['dummy_baselines']['stratified']['roc_auc']}")
         for name, m in rep["models"].items():
             t = m["thresholds"]
-            print(f"  {name}: ROC-AUC={m['roc_auc']} PR-AUC={m['pr_auc']} "
+            print(f"  {name}: VAL-AUC={m['val_roc_auc']} TEST-AUC={m['roc_auc']} PR-AUC={m['pr_auc']} "
                   f"Brier={m['calibration']['brier']} ECE={m['calibration']['ece_10bin']} | "
                   f"F1-max@{t['f1_max']['threshold']}={t['f1_max']['f1']} | "
                   f"Youden@{t['youden']['threshold']}")
-        print(f"  best={rep['best_model']} | cost-optimal threshold={rep['cost_sketch']['cost_optimal']} "
+        print(f"  best (by VAL-AUC)={rep['best_model']} | cost-optimal threshold={rep['cost_sketch']['cost_optimal']} "
               f"(treat-all={rep['cost_sketch']['treat_all']})")
         print("  worst segments @0.5: " + ", ".join(
             f"{s['archetype']}(err={s['error_rate']},n={s['n']})"

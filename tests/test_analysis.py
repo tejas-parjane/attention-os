@@ -30,13 +30,13 @@ def _toy(n: int = 200, seed: int = 7):
 
 def test_reproduce_test_split_sizes_disjoint_and_stratified():
     X, y, _ = _toy(200)
-    tr, va, te = reproduce_test_split(X, y)
-    assert len(tr) == 140 and len(va) == 30 and len(te) == 30
-    assert len(set(tr) & set(va) & set(te)) == 0
-    assert len(set(tr) | set(va) | set(te)) == 200
+    fit, va, te = reproduce_test_split(X, y)
+    assert len(te) == 30 and len(fit) + len(va) == 170  # ceil-per-class rounding
+    assert len(set(fit) & set(va) & set(te)) == 0
+    assert len(set(fit) | set(va) | set(te)) == 200
     # positive rate preserved approximately in each fold
     overall = y.mean()
-    for idx in (tr, va, te):
+    for idx in (fit, va, te):
         assert abs(y.iloc[idx].mean() - overall) < 0.15
 
 

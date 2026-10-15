@@ -138,8 +138,8 @@
     <div class="kpi"><div class="v s">500</div><div class="l">Synthetic users · 90 days of events</div></div>
     <div class="kpi"><div class="v w">250</div><div class="l">Users flagged at-risk (&gt;70% churn)</div></div>
     <div class="kpi"><div class="v a">$55K</div><div class="l">Total lifetime revenue</div></div>
-    <div class="kpi"><div class="v a">0.86</div><div class="l">Retention model ROC-AUC (test)</div></div>
-    <div class="kpi"><div class="v a">0.85</div><div class="l">Monetization model ROC-AUC (test)</div></div>
+    <div class="kpi"><div class="v a">0.88</div><div class="l">Retention model ROC-AUC (test)</div></div>
+    <div class="kpi"><div class="v a">0.80</div><div class="l">Monetization model ROC-AUC (test)</div></div>
     <div class="kpi"><div class="v s">64%</div><div class="l">Users receive <b style="color:#fff">NO_ACTION</b> (restraint)</div></div>
   </div>
 
@@ -164,8 +164,8 @@
       <h3 style="margin-bottom:14px; font-size:18px; font-weight:500;">Retention (returns in 7 days)</h3>
       <table>
         <tr><th>Model</th><th>ROC-AUC</th><th>PR-AUC</th><th>F1</th><th>Brier</th></tr>
-        <tr><td>Logistic</td><td>0.85</td><td>0.80</td><td>0.74</td><td>0.17</td></tr>
-        <tr><td><b>Random Forest</b></td><td><b>0.86</b></td><td><b>0.83</b></td><td><b>0.72</b></td><td><b>0.17</b></td></tr>
+        <tr><td><b>Logistic</b></td><td><b>0.88</b></td><td><b>0.86</b></td><td><b>0.81</b></td><td><b>0.14</b></td></tr>
+        <tr><td>Random Forest</td><td>0.88</td><td>0.86</td><td>0.81</td><td>0.14</td></tr>
         <tr><td>XGBoost</td><td>0.82</td><td>0.75</td><td>0.73</td><td>0.22</td></tr>
       </table>
     </div>
@@ -173,9 +173,9 @@
       <h3 style="margin-bottom:14px; font-size:18px; font-weight:500;">Monetization (purchases in 7 days)</h3>
       <table>
         <tr><th>Model</th><th>ROC-AUC</th><th>PR-AUC</th><th>F1</th><th>Brier</th></tr>
-        <tr><td>Logistic</td><td>0.82</td><td>0.43</td><td>0.48</td><td>0.17</td></tr>
-        <tr><td><b>Random Forest</b></td><td><b>0.85</b></td><td><b>0.50</b></td><td><b>0.36</b></td><td><b>0.11</b></td></tr>
-        <tr><td>XGBoost</td><td>0.82</td><td>0.55</td><td>0.46</td><td>0.15</td></tr>
+        <tr><td>Logistic</td><td>0.82</td><td>0.54</td><td>0.64</td><td>0.11</td></tr>
+        <tr><td>Random Forest</td><td>0.82</td><td>0.63</td><td>0.48</td><td>0.10</td></tr>
+        <tr><td><b>XGBoost</b></td><td><b>0.80</b></td><td><b>0.67</b></td><td><b>0.57</b></td><td><b>0.09</b></td></tr>
       </table>
     </div>
   </div>
@@ -203,12 +203,12 @@
   <div class="card">
     <table>
       <tr><th>Action</th><th>Share</th><th>Purpose</th></tr>
-      <tr><td><b>NO_ACTION</b></td><td>63.6%</td><td>"Do nothing" below the confidence threshold — prevents over-intervention &amp; notification fatigue</td></tr>
-      <tr><td>DISCOUNT</td><td>13.8%</td><td>Monetization nudge for conversion-capable users</td></tr>
-      <tr><td>PUSH_NOTIFICATION</td><td>13.0%</td><td>Re-engagement nudge for at-risk users</td></tr>
-      <tr><td>PERSONALIZED_CONTENT</td><td>6.8%</td><td>Content re-engagement for stable-but-bored users</td></tr>
-      <tr><td>AD_FREQUENCY_REDUCTION</td><td>2.4%</td><td>Protect high-value users from ad fatigue</td></tr>
-      <tr><td>CROSS_SELL</td><td>0.4%</td><td>Extend value for top spenders</td></tr>
+      <tr><td><b>NO_ACTION</b></td><td>63.2%</td><td>"Do nothing" below the confidence threshold — prevents over-intervention &amp; notification fatigue</td></tr>
+      <tr><td>DISCOUNT</td><td>13.6%</td><td>Monetization nudge for conversion-capable users</td></tr>
+      <tr><td>PUSH_NOTIFICATION</td><td>13.4%</td><td>Re-engagement nudge for at-risk users</td></tr>
+      <tr><td>PERSONALIZED_CONTENT</td><td>6.0%</td><td>Content re-engagement for stable-but-bored users</td></tr>
+      <tr><td>AD_FREQUENCY_REDUCTION</td><td>3.6%</td><td>Protect high-value users from ad fatigue</td></tr>
+      <tr><td>CROSS_SELL</td><td>0.2%</td><td>Extend value for top spenders</td></tr>
     </table>
   </div>
 

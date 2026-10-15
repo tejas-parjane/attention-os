@@ -175,13 +175,15 @@ def train_monetization_model(
     y: pd.Series,
     reference_dates: Optional[pd.Series] = None,
 ) -> Tuple[Dict[str, Any], Dict[str, Dict[str, float]]]:
-    """Train three classifiers on a stratified 70/15/15 user split.
+    """Train three classifiers with validation-based model selection.
 
-    Temporal separation is enforced by construction: every row shares one
-    prediction date, all features are computed strictly before it and all
-    labels strictly after it, so no future information can leak between
-    folds.  Users are then assigned to folds with a stratified shuffle
-    split (see ``scripts/train_models.py``), preserving the positive rate.
+    The input is the 85% training pool (the 15% test fold is held out
+    upstream in ``scripts/train_models.py`` and never seen here). Temporal
+    separation is enforced by construction: every row shares one prediction
+    date, all features are computed strictly before it and all labels
+    strictly after it. The pool is split ~82% fit / ~18% validation with a
+    seeded stratified shuffle (``src.models.splits.inner_split``); the
+    final model is selected on validation ROC-AUC, never on test.
 
     Parameters
     ----------
@@ -197,25 +199,25 @@ def train_monetization_model(
         ``{"logistic": …, "random_forest": …, "xgboost": …}``
     metrics : dict
         Per-model train-set summary metrics.
+    val_metrics : dict
+        Per-model held-out validation metrics (ROC-AUC, PR-AUC, F1).
+        Select the final model on THESE — never on the test set.
     """
 
-    if reference_dates is not None:
-        order = reference_dates.values.argsort()
-        X = X.iloc[order].reset_index(drop=True)
-        y = y.iloc[order].reset_index(drop=True)
+    from src.models.splits import inner_split
 
-    n = len(X)
-    train_end = int(n * 0.70)
-    val_end = int(n * 0.85)
-
-    X_train, y_train = X.iloc[:train_end], y.iloc[:train_end]
-    X_val, y_val = X.iloc[train_end:val_end], y.iloc[train_end:val_end]
+    # Inner stratified split of the training pool: ~82% fit / ~18% validation
+    # (15 points of the full data). Shared with scripts/analyze_models.py via
+    # src.models.splits so validation folds are identical everywhere.
+    fit_idx, val_idx = inner_split(X, y)
+    X_train, y_train = X.iloc[fit_idx].reset_index(drop=True), y.iloc[fit_idx].reset_index(drop=True)
+    X_val, y_val = X.iloc[val_idx].reset_index(drop=True), y.iloc[val_idx].reset_index(drop=True)
 
     logger.info(
-        "Split sizes  train=%d  val=%d  test=%d",
+        "Split sizes  fit=%d  val=%d  pool=%d",
         len(X_train),
         len(X_val),
-        len(X) - val_end,
+        len(X),
     )
 
     # Compute class weight for imbalanced purchase labels
@@ -250,6 +252,7 @@ def train_monetization_model(
 
     trained: Dict[str, Any] = {}
     metrics: Dict[str, Dict[str, float]] = {}
+    val_metrics: Dict[str, Dict[str, float]] = {}
 
     for name, model in candidates.items():
         logger.info("Training %s …", name)
@@ -268,6 +271,18 @@ def train_monetization_model(
             "pr_auc": float(average_precision_score(y_train, train_proba)),
             "f1": float(f1_score(y_train, train_pred)),
         }
+        # Held-out validation scores — the ONLY basis for model selection.
+        val_proba = (
+            model.predict_proba(X_val)[:, 1]
+            if hasattr(model, "predict_proba")
+            else model.predict(X_val).astype(float)
+        )
+        val_pred = model.predict(X_val)
+        val_metrics[name] = {
+            "roc_auc": float(roc_auc_score(y_val, val_proba)),
+            "pr_auc": float(average_precision_score(y_val, val_proba)),
+            "f1": float(f1_score(y_val, val_pred)),
+        }
         logger.info(
             "  %s  ROC-AUC=%.4f  PR-AUC=%.4f",
             name,
@@ -275,7 +290,7 @@ def train_monetization_model(
             metrics[name]["pr_auc"],
         )
 
-    return trained, metrics
+    return trained, metrics, val_metrics
 
 
 # ---------------------------------------------------------------------------
@@ -478,7 +493,7 @@ if __name__ == "__main__":
     )
 
     # ---- train ----
-    models, train_metrics = train_monetization_model(X_train, y_train)
+    models, train_metrics, _val_metrics = train_monetization_model(X_train, y_train)
 
     # ---- evaluate ----
     metrics_df, details = evaluate_monetization_models(models, X_test, y_test)

@@ -29,13 +29,13 @@ Point at the KPIs (500 users, at-risk count, revenue, conversion) and the engage
 
 ## Act 3 — User Explorer (3 min)
 
-Go to **User Explorer**, pick a user, e.g. `user_0079`.
+Go to **User Explorer**, pick a user, e.g. `user_0261`.
 
 > "This user is scored on ~40 leakage-safe features — recency, frequency, intensity, trend, diversity. Every feature is computed only from events **before** the prediction point. Nothing future leaks in."
 
 Show the **Predictions**: retention probability and purchase probability.
 
-> "The retention model says this user is 64% likely to return — meaningful risk. The monetization model sees ~96% purchase likelihood. High buying intent plus retention risk is exactly the profile for a discount."
+> "The retention model says this user is 45% likely to return — genuine risk. The monetization model sees ~100% purchase likelihood. High buying intent plus retention risk is exactly the profile for a discount."
 
 Show the **Recommended Action** (`DISCOUNT`) and the activity timeline.
 
@@ -78,9 +78,9 @@ Mention `personalized_challenge` (+0.090, p=0.001) also beat control; `generic_n
 
 Go to **Model Performance**.
 
-> "We train three families per target — Logistic, Random Forest, XGBoost — on a stratified 70/15/15 user split at one fixed prediction date, and pick the best on a held-out test set. Features come strictly from before that date and labels strictly from after, so models are evaluated the way they would be deployed: scoring users as of *now* using only past behavior."
+> "We train three families per target — Logistic, Random Forest, XGBoost — on a stratified 85/15 pool/test split at one fixed prediction date, pick the winner on a held-out validation fold, and report test numbers as the final unbiased estimate. Features come strictly from before that date and labels strictly from after, so models are evaluated the way they would be deployed: scoring users as of *now* using only past behavior."
 
-> "Retention: ROC-AUC ~0.86. Monetization: ~0.85. These are believable production numbers — **not** 1.0. That's deliberate: real churn has irreducible stochasticity, and our generator includes return-noise so the models learn real signal plus noise rather than memorizing the data."
+> "Retention: ROC-AUC ~0.88 (Logistic, picked on validation). Monetization: ~0.80 (XGBoost, picked on validation — validation said 0.88, test says 0.80, and reporting both numbers is the honest version). These are believable production numbers — **not** 1.0. That's deliberate: real churn has irreducible stochasticity, and our generator includes return-noise so the models learn real signal plus noise rather than memorizing the data."
 
 Show the feature-importance chart and the model comparison table.
 

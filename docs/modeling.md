@@ -93,17 +93,15 @@ Temporal separation therefore holds **by construction for every user** — no fe
 
 ### How users are assigned to folds
 
-Within that guarantee, users are assigned to train/val/test (70/15/15) with a **stratified shuffle split** (`sklearn.model_selection.StratifiedShuffleSplit`, `random_state=42`), so each fold preserves the positive-class rate. This is *not* a chronological split — with a single shared T0 there is no per-row time ordering to split on, and pretending otherwise would be dishonest. What matters for leakage is the T0 boundary above, which is enforced in code (`src/features/engine.py` only accepts `timestamp < reference_date`) and covered by leakage tests (`tests/test_features/test_features.py::TestLeakagePrevention`).
+Within that guarantee, users are assigned by **seeded stratified shuffle splits** (`random_state=42`, single definition in `src/models/splits.py`, shared by training and analysis):
 
-```python
-splitter = StratifiedShuffleSplit(n_splits=1, test_size=0.30, random_state=42)
-train_idx, temp_idx = next(splitter.split(X, y))   # 70 / 30
-splitter2 = StratifiedShuffleSplit(n_splits=1, test_size=0.50, random_state=42)
-val_idx, test_idx = ...                            # 15 / 15 of total
-```
+1. **Outer split (85/15):** 85% training pool / 15% held-out test. The test fold is locked away — never used for fitting, tuning, or selection.
+2. **Inner split (~82/18 of the pool):** the training pool is split again into fit/validation. **Model selection happens here, on validation ROC-AUC.** Test numbers are reported afterward as the final unbiased estimate.
 
-- The split is **stratified** — each fold keeps the dataset's positive rate.
-- The split is **seeded** — `random_state=42` makes it exactly reproducible.
+This is *not* a chronological split — with a single shared T0 there is no per-row time ordering to split on, and pretending otherwise would be dishonest. What matters for leakage is the T0 boundary above, which is enforced in code (`src/features/engine.py` only accepts `timestamp < reference_date`) and covered by leakage tests (`tests/test_features/test_features.py::TestLeakagePrevention`).
+
+- The splits are **stratified** — each fold keeps the dataset's positive rate.
+- The splits are **seeded** — `random_state=42` makes them exactly reproducible.
 - **No user appears in two folds** — the unit of splitting is the user, so same-user leakage is impossible.
 
 ---
