@@ -29,13 +29,13 @@ Point at the KPIs (500 users, at-risk count, revenue, conversion) and the engage
 
 ## Act 3 — User Explorer (3 min)
 
-Go to **User Explorer**, pick a user, e.g. `user_0095`.
+Go to **User Explorer**, pick a user, e.g. `user_0079`.
 
 > "This user is scored on ~40 leakage-safe features — recency, frequency, intensity, trend, diversity. Every feature is computed only from events **before** the prediction point. Nothing future leaks in."
 
 Show the **Predictions**: retention probability and purchase probability.
 
-> "The retention model says this user is 77% likely to return — meaningful risk. The monetization model sees ~99% purchase likelihood. High buying intent plus retention risk is exactly the profile for a discount."
+> "The retention model says this user is 64% likely to return — meaningful risk. The monetization model sees ~96% purchase likelihood. High buying intent plus retention risk is exactly the profile for a discount."
 
 Show the **Recommended Action** (`DISCOUNT`) and the activity timeline.
 

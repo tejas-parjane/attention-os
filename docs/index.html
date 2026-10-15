@@ -138,8 +138,8 @@
     <div class="kpi"><div class="v s">500</div><div class="l">Synthetic users · 90 days of events</div></div>
     <div class="kpi"><div class="v w">250</div><div class="l">Users flagged at-risk (&gt;70% churn)</div></div>
     <div class="kpi"><div class="v a">$55K</div><div class="l">Total lifetime revenue</div></div>
-    <div class="kpi"><div class="v a">0.84</div><div class="l">Retention model ROC-AUC (test)</div></div>
-    <div class="kpi"><div class="v a">0.89</div><div class="l">Monetization model ROC-AUC (test)</div></div>
+    <div class="kpi"><div class="v a">0.86</div><div class="l">Retention model ROC-AUC (test)</div></div>
+    <div class="kpi"><div class="v a">0.85</div><div class="l">Monetization model ROC-AUC (test)</div></div>
     <div class="kpi"><div class="v s">64%</div><div class="l">Users receive <b style="color:#fff">NO_ACTION</b> (restraint)</div></div>
   </div>
 
@@ -150,7 +150,7 @@
   <div class="card">
     <div class="io"><div class="step">1</div><div><b>Behavior</b><p>Synthetic event generator — 15 event types, 8 user archetypes (whale, casual, at-risk, declining…), with <b style="color:#fff;font-weight:500">irreducible return noise</b> so behavior isn't perfectly predictable (which is why metrics are realistic, not 1.0).</p><small>src/data/generator.py</small></div></div>
     <div class="io"><div class="step">2</div><div><b>Feature Engineering</b><p>40 leakage-safe rolling-window features — recency, frequency, intensity, trend, diversity. Each feature uses only <b style="color:#fff;font-weight:500">past</b> data (strict reference-date cutoff before the label window).</p><small>src/features/engine.py</small></div></div>
-    <div class="io"><div class="step">3</div><div><b>Prediction</b><p>Will the user return in 7 days? Will they purchase in 7 days? Three model families (Logistic · Random Forest · XGBoost) on a <b style="color:#fff;font-weight:500">chronological 70/15/15 split</b>; best selected on test ROC-AUC.</p><small>src/models/retention.py · monetization.py</small></div></div>
+    <div class="io"><div class="step">3</div><div><b>Prediction</b><p>Will the user return in 7 days? Will they purchase in 7 days? Three model families (Logistic · Random Forest · XGBoost) on a <b style="color:#fff;font-weight:500">stratified 70/15/15 split at one prediction date</b>; best selected on test ROC-AUC.</p><small>src/models/retention.py · monetization.py</small></div></div>
     <div class="io"><div class="step">4</div><div><b>Decision</b><p>A <b style="color:#fff;font-weight:500">deterministic</b> decision engine scores candidate actions by expected value minus cost, fatigue and risk; applies <b style="color:#fff;font-weight:500">guardrails</b> as hard constraints; may return <b style="color:#fff;font-weight:500">NO_ACTION</b> when confidence is low.</p><small>src/decision_engine/engine.py</small></div></div>
     <div class="io"><div class="step">5</div><div><b>Explanation</b><p>Every decision ships with a plain-language AI explanation (provider-agnostic LLM) plus a guaranteed deterministic fallback.</p><small>src/llm/explainer.py</small></div></div>
     <div class="io"><div class="step">6</div><div><b>Experimentation</b><p>Deterministic hash-based A/B assignment + Welch's t-test significance analysis — we measure whether the action actually worked and feed it back.</p><small>src/experiments/engine.py</small></div></div>
@@ -164,18 +164,18 @@
       <h3 style="margin-bottom:14px; font-size:18px; font-weight:500;">Retention (returns in 7 days)</h3>
       <table>
         <tr><th>Model</th><th>ROC-AUC</th><th>PR-AUC</th><th>F1</th><th>Brier</th></tr>
-        <tr><td><b>Logistic</b></td><td><b>0.84</b></td><td>0.66</td><td>0.78</td><td>0.16</td></tr>
-        <tr><td>Random Forest</td><td>0.82</td><td>0.73</td><td>0.71</td><td>0.18</td></tr>
-        <tr><td>XGBoost</td><td>0.77</td><td>0.61</td><td>0.69</td><td>0.23</td></tr>
+        <tr><td>Logistic</td><td>0.85</td><td>0.80</td><td>0.74</td><td>0.17</td></tr>
+        <tr><td><b>Random Forest</b></td><td><b>0.86</b></td><td><b>0.83</b></td><td><b>0.72</b></td><td><b>0.17</b></td></tr>
+        <tr><td>XGBoost</td><td>0.82</td><td>0.75</td><td>0.73</td><td>0.22</td></tr>
       </table>
     </div>
     <div class="card">
       <h3 style="margin-bottom:14px; font-size:18px; font-weight:500;">Monetization (purchases in 7 days)</h3>
       <table>
         <tr><th>Model</th><th>ROC-AUC</th><th>PR-AUC</th><th>F1</th><th>Brier</th></tr>
-        <tr><td>Logistic</td><td>0.89</td><td>0.53</td><td>0.58</td><td>0.19</td></tr>
-        <tr><td><b>Random Forest</b></td><td><b>0.89</b></td><td><b>0.55</b></td><td><b>0.56</b></td><td><b>0.12</b></td></tr>
-        <tr><td>XGBoost</td><td>0.88</td><td>0.51</td><td>0.57</td><td>0.17</td></tr>
+        <tr><td>Logistic</td><td>0.82</td><td>0.43</td><td>0.48</td><td>0.17</td></tr>
+        <tr><td><b>Random Forest</b></td><td><b>0.85</b></td><td><b>0.50</b></td><td><b>0.36</b></td><td><b>0.11</b></td></tr>
+        <tr><td>XGBoost</td><td>0.82</td><td>0.55</td><td>0.46</td><td>0.15</td></tr>
       </table>
     </div>
   </div>

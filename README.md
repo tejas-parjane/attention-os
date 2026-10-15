@@ -85,11 +85,11 @@ These are believable production-grade numbers (not "perfect" — which is the po
 
 | Action | Share | Purpose |
 |--------|------:|---------|
-| `NO_ACTION` | 63.8% | "Do nothing" — confidence below threshold; prevents over-intervention |
-| `DISCOUNT` | 16.8% | Price-sensitive monetization nudge for conversion-capable users |
-| `PUSH_NOTIFICATION` | 10.2% | Re-engagement nudge for at-risk users |
-| `PERSONALIZED_CONTENT` | 5.0% | Content re-engagement for stable-but-bored users |
-| `AD_FREQUENCY_REDUCTION` | 3.8% | Protect high-value users from ad fatigue |
+| `NO_ACTION` | 63.6% | "Do nothing" — confidence below threshold; prevents over-intervention |
+| `DISCOUNT` | 13.8% | Price-sensitive monetization nudge for conversion-capable users |
+| `PUSH_NOTIFICATION` | 13.0% | Re-engagement nudge for at-risk users |
+| `PERSONALIZED_CONTENT` | 6.8% | Content re-engagement for stable-but-bored users |
+| `AD_FREQUENCY_REDUCTION` | 2.4% | Protect high-value users from ad fatigue |
 | `CROSS_SELL` | 0.4% | Extend value for top spenders |
 
 The system values **restraint** — nearly two-thirds of users get *no action*, because acting confidently is better than acting often.
@@ -109,17 +109,17 @@ All three variants beat control; **`reward`** wins with the largest, cleanest li
 
 ## Example walkthrough
 
-Pick a real user from the data, e.g. `user_0095`:
+Pick a real user from the data, e.g. `user_0079`:
 
 ```
-Retention probability : 77%
-Purchase probability  : 99%
-Engagement            : improving
+Retention probability : 64%
+Purchase probability  : 96%
+Engagement            : declining
 Value segment         : low
 Recommended action    : DISCOUNT
 Objective             : retention
-Confidence            : 0.999
-Expected value        : 46.74
+Confidence            : 0.992
+Expected value        : 9.09
 ```
 
 The decision engine scored a discount higher than a push or content nudge because this user is highly purchase-likely *and* at meaningful retention risk — a discount is the highest-expected-value action after cost, fatigue, and risk penalties are applied.
@@ -190,25 +190,25 @@ All endpoints live under the same host. The dashboard calls these endpoints; it 
 | GET | `/experiments/{id}/results` | Per-variant stats + significance + recommendation |
 | GET | `/metrics/overview` | Aggregate KPIs (users, at-risk, revenue, conversion) |
 
-Example decision response (`POST /users/user_0095/decision`):
+Example decision response (`POST /users/user_0079/decision`):
 
 ```json
 {
   "decision": {
     "action": "DISCOUNT",
     "objective": "retention",
-    "confidence": 0.999,
-    "expected_value": 46.74,
-    "reasons": ["Best expected value: 46.74", "Predicted impact: 0.9974", "Objective weight (retention): 1.0"],
+    "confidence": 0.992,
+    "expected_value": 9.09,
+    "reasons": ["Best expected value: 9.0934", "Predicted impact: 0.9681", "Objective weight (retention): 1.0"],
     "guardrails": []
   },
   "user_state": {
-    "engagement": "improving",
-    "retention_risk": 0.23,
+    "engagement": "declining",
+    "retention_risk": 0.0,
     "value_segment": "low",
     "notification_response": "neutral"
   },
-  "explanation": "User user_0095 has a 77% retention probability ..."
+  "explanation": "User user_0079 has a 64% retention probability ..."
 }
 ```
 
@@ -302,7 +302,7 @@ The Streamlit dashboard has **5 pages**:
 4. **Experiment Dashboard** — control vs. variants with confidence intervals and significance.
 5. **Model Performance** — model comparison tables, ROC/PR, calibration, feature importance.
 
-Suggested flow: open **Overview** → drill into **User Explorer** (e.g. `user_0095`) → show the **Decision Explanation** → show the **Experiment Dashboard** (reward wins) → finish on **Model Performance** (honest AUC ~0.8–0.9).
+Suggested flow: open **Overview** → drill into **User Explorer** (e.g. `user_0079`) → show the **Decision Explanation** → show the **Experiment Dashboard** (reward wins) → finish on **Model Performance** (honest AUC ~0.8–0.9).
 
 See [`docs/demo_script.md`](docs/demo_script.md) for a full narrated 15–20 min script.
 
