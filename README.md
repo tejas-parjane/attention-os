@@ -231,7 +231,7 @@ Full interactive docs at `http://localhost:8000/docs`.
 - **Stratified user split** — 70/15/15 via seeded stratified shuffle (`random_state=42`); disjoint users per fold, positive rate preserved.
 - **Features before label** — features are computed as of a reference date that is **strictly before** the label window. No future information is visible to a model.
 - **Rolling windows** — 1/7/30-day aggregates only use past events for each window.
-- **Stochastic target** — the generator injects irreducible return noise, so models learn real signal + noise rather than memorizing a deterministic rule (this is why AUC is ~0.84–0.89, not 1.0).
+- **Stochastic target** — the generator injects irreducible return noise, so models learn real signal + noise rather than memorizing a deterministic rule (this is why AUC is ~0.85, not 1.0).
 
 ### Why three models
 
