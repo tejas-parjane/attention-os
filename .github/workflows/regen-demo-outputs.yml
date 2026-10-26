@@ -1,0 +1,45 @@
+name: Regenerate demo outputs
+
+# One-off, manual run. Regenerates predictions, recommendations, demo JSON and
+# the two data-dependent charts with the validation-selected models.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+          pip install "scikit-learn==1.6.1"
+
+      - name: Regenerate outputs
+        run: |
+          python scripts/generate_predictions.py
+          python scripts/run_decision_engine.py
+          python scripts/export_demo_data.py
+          python scripts/make_landing_charts.py
+          cp landing/charts/action_distribution.html docs/charts/action_distribution.html
+          cp landing/charts/churn_risk.html docs/charts/churn_risk.html
+
+      - name: Commit regenerated outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/processed/predictions.parquet data/processed/recommendations.parquet docs/data/attentionos.json docs/charts/action_distribution.html docs/charts/churn_risk.html
+          git status --short
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Regenerate predictions, recommendations and demo data with validation-selected models"
+          git push
