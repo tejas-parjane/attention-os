@@ -106,7 +106,7 @@ Two prediction models are maintained:
 | **Retention Model** | P(does not churn within 7 days) | 7-day window | Identifies at-risk users who need intervention. |
 | **Monetization Model** | P(purchase within 7 days) | 7-day window | Identifies users with conversion propensity for upsell offers. |
 
-Both models are trained with **temporal splits** — training data strictly precedes validation data in wall-clock time. This prevents the models from memorizing future patterns that would not be available at inference time.
+Both models use a **fixed prediction date** — features come strictly from before it and labels strictly from after it — with a seeded, stratified user-level train/validation/test split. This is not a chronological split. The fixed date prevents future information from leaking into features; see [modeling.md](modeling.md) for the split design.
 
 **Model selection** (see [modeling.md](modeling.md) for full detail):
 - Logistic Regression serves as the interpretable baseline.
