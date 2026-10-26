@@ -87,9 +87,9 @@ These are results on synthetic data, not production performance (and deliberatel
 |--------|------:|---------|
 | `NO_ACTION` | 63.2% | "Do nothing" — confidence below threshold; prevents over-intervention |
 | `DISCOUNT` | 13.6% | Price-sensitive monetization nudge for conversion-capable users |
-| `PUSH_NOTIFICATION` | 13.4% | Re-engagement nudge for at-risk users |
-| `PERSONALIZED_CONTENT` | 6.0% | Content re-engagement for stable-but-bored users |
-| `AD_FREQUENCY_REDUCTION` | 3.6% | Protect high-value users from ad fatigue |
+| `PUSH_NOTIFICATION` | 12.0% | Re-engagement nudge for at-risk users |
+| `PERSONALIZED_CONTENT` | 6.2% | Content re-engagement for stable-but-bored users |
+| `AD_FREQUENCY_REDUCTION` | 4.8% | Protect high-value users from ad fatigue |
 | `CROSS_SELL` | 0.2% | Extend value for top spenders |
 
 The system values **restraint** — nearly two-thirds of users get *no action*, because acting confidently is better than acting often.
