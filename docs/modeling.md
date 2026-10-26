@@ -148,7 +148,7 @@ Three models are trained and compared on the validation set:
 | **Role** | Production model — selected for the best balance of performance, calibration, and inference speed. |
 | **Strengths** | Excellent predictive performance. Built-in regularization reduces overfitting. Handles missing values natively. Fast inference. |
 | **Weaknesses** | Less interpretable than logistic regression (though SHAP values can help). More hyperparameters to tune. |
-| **Selection criteria** | Selected based on: (1) highest AUC on temporal validation, (2) best calibration (Brier score), (3) reasonable feature importance stability across folds. |
+| **Selection criteria** | Selected based on: (1) highest ROC-AUC on the held-out validation fold (never the test set), (2) best calibration (Brier score), (3) reasonable feature importance stability across folds. |
 
 ### Hyperparameters (XGBoost)
 
