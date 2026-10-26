@@ -79,7 +79,7 @@ Synthetic Behavioral Data → Data Validation → Feature Engineering
 | Random Forest | 0.82 | 0.63 | 0.63 | 0.38 | 0.48 | 0.10 |
 | **XGBoost (selected on val)** | **0.80** | **0.67** | 0.75 | 0.46 | **0.57** | **0.09** |
 
-These are believable production-grade numbers (not "perfect" — which is the point). Two honest notes: the monetization winner was picked on validation (val AUC 0.88) and scores 0.80 on test — that val/test gap on a 75-user test set is expected noise, not failure. At the default 0.5 threshold the monetization winner recalls 46% of purchasers — threshold analysis in `docs/model_evaluation.md` shows F1 rising to 0.70 at threshold 0.35. Both tasks beat dummy baselines (0.50/0.51 retention, 0.50/0.46 monetization) with meaningful signal and sober precision/recall trade-offs.
+These are results on synthetic data, not production performance (and deliberately not "perfect"). Two honest notes: the monetization winner was picked on validation (val AUC 0.88) and scores 0.80 on test — that val/test gap on a 75-user test set is expected noise, not failure. At the default 0.5 threshold the monetization winner recalls 46% of purchasers — threshold analysis in `docs/model_evaluation.md` shows F1 rising to 0.70 at threshold 0.35. Both tasks beat dummy baselines (0.50/0.51 retention, 0.50/0.46 monetization) with meaningful signal and sober precision/recall trade-offs.
 
 ### Decision engine output (500 users)
 
