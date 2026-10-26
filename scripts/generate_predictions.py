@@ -22,15 +22,41 @@ logger = logging.getLogger(__name__)
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def _load_best_model(model_dir: Path) -> object:
-    """Load the best model (by filename convention) from a model directory.
+def _selected_model_name(task: str) -> str | None:
+    """Return the validation-selected model name recorded by train_models.py."""
+    import json
 
-    Tries xgboost.joblib, random_forest.joblib, logistic.joblib in order,
-    falling back to pickle (.pkl) files.
+    report_path = ROOT / "data" / "models" / "evaluation_report.json"
+    if not report_path.exists():
+        return None
+    try:
+        report = json.loads(report_path.read_text())
+        val_auc = report["tasks"][task]["selection"]["val_roc_auc"]
+    except (KeyError, ValueError):
+        return None
+    return max(val_auc, key=val_auc.get)
+
+
+def _load_best_model(model_dir: Path, task: str) -> object:
+    """Load the model selected on validation ROC-AUC for the given task.
+
+    The winner is read from data/models/evaluation_report.json (written by
+    train_models.py). If the report is missing, fall back to the first model
+    file found in the order xgboost, random_forest, logistic and log a warning.
     """
     import joblib
 
     model_dir = Path(model_dir)
+    selected = _selected_model_name(task)
+    if selected is not None:
+        selected_path = model_dir / f"{selected}.joblib"
+        if selected_path.exists():
+            logger.info("Using validation-selected %s model: %s", task, selected)
+            return joblib.load(selected_path)
+        logger.warning("Selected %s model file %s not found; falling back.", task, selected_path)
+    else:
+        logger.warning("No selection record for %s; falling back to filename order.", task)
+
     for name in ("xgboost", "random_forest", "logistic"):
         joblib_path = model_dir / f"{name}.joblib"
         if joblib_path.exists():
@@ -66,8 +92,8 @@ def main() -> None:
     features_df = pd.read_parquet(features_path)
     logger.info("Loaded features for %d users", len(features_df))
 
-    ret_model = _load_best_model(ret_model_dir)
-    mon_model = _load_best_model(mon_model_dir)
+    ret_model = _load_best_model(ret_model_dir, "retention")
+    mon_model = _load_best_model(mon_model_dir, "monetization")
 
     if ret_model is None:
         logger.error("No retention model found in %s — run train_models.py first.", ret_model_dir)
